@@ -20,9 +20,14 @@ import java.io.Serializable;
 import java.text.ParseException;
 import java.util.StringTokenizer;
 
+import static org.dd4t.core.util.TCMURI.Namespace.ISH;
+import static org.dd4t.core.util.TCMURI.Namespace.TCM;
+
 public class TCMURI implements Serializable {
 
+    // Note: this variable left for possible backward compatibility
     public static final String URI_NAMESPACE = "tcm:";
+    protected static final String COLON = ":";
     protected static final String SEPARATOR = "-";
     protected static final String DELIM_VERSION = "v";
 
@@ -30,6 +35,7 @@ public class TCMURI implements Serializable {
     private int itemId;
     private int pubId;
     private int version;
+    private Namespace namespace = TCM;
 
     public TCMURI() {
     }
@@ -49,20 +55,26 @@ public class TCMURI implements Serializable {
         this.version = version;
     }
 
+    public TCMURI(Namespace namespace, int publicationId, int itemId, int itemType, int version) {
+        this(publicationId, itemId, itemType, version);
+        this.namespace = namespace;
+    }
+
     public static boolean isValid(String tcmUri) {
-        return tcmUri != null && tcmUri.startsWith(URI_NAMESPACE);
+        return tcmUri != null && startsWithNamespace(tcmUri);
     }
 
     protected void load(String uriString) throws ParseException {
         if (uriString != null) {
-            int namespaceLength = URI_NAMESPACE.length();
-            int uriStringLength = uriString.length();
-            int currentPosition = uriStringLength;
-            if ((uriStringLength < namespaceLength) || (!uriString.startsWith(URI_NAMESPACE))) {
-                throw new ParseException("URI string " + uriString + " does not start with " + URI_NAMESPACE, currentPosition);
+            int colonCharAt = uriString.indexOf(COLON);
+            int currentPosition = uriString.length();
+            if ((colonCharAt < 0) || !startsWithNamespace(uriString)) {
+                throw new ParseException("URI string " + uriString + " does not start with '" + TCM.getValue() + "' or '"
+                        + ISH.getValue() + "'", currentPosition);
             }
 
-            String uri = uriString.substring(namespaceLength, uriStringLength);
+            this.namespace = Namespace.valueOf(uriString.substring(0, colonCharAt).toUpperCase());
+            String uri = uriString.substring(colonCharAt + 1);
             StringTokenizer st = new StringTokenizer(uri, "-");
             if (st.countTokens() < 2) {
                 throw new ParseException("URI string " + uriString + " does not contain enough ID's", currentPosition);
@@ -102,6 +114,16 @@ public class TCMURI implements Serializable {
         }
     }
 
+    private static boolean startsWithNamespace(String uriString) {
+        for (Namespace namespace : Namespace.values()) {
+            if (uriString.startsWith(namespace.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
     public static int safeLongToInt(long l) {
         if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
             throw new IllegalArgumentException
@@ -112,7 +134,8 @@ public class TCMURI implements Serializable {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(URI_NAMESPACE);
+        sb.append(namespace.getValue());
+        sb.append(COLON);
         sb.append(this.pubId);
         sb.append(SEPARATOR);
         sb.append(this.itemId);
@@ -137,5 +160,24 @@ public class TCMURI implements Serializable {
 
     public int getVersion() {
         return this.version;
+    }
+
+    public Namespace getUriNamespace() {
+        return this.namespace;
+    }
+
+    public enum Namespace {
+        TCM("tcm"),
+        ISH("ish");
+
+        String value;
+
+        Namespace(String value) {
+            this.value = value;
+        }
+
+        String getValue() {
+            return value;
+        }
     }
 }
