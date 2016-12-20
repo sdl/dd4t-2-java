@@ -176,7 +176,7 @@ public class TCMURI implements Serializable {
             this.value = value;
         }
 
-        String getValue() {
+        public String getValue() {
             return value;
         }
     }
