@@ -68,7 +68,7 @@ public class TCMURI implements Serializable {
     }
 
     protected void load(String uriString) throws ParseException {
-        if (uriString != null && !uriString.isEmpty()) {
+        if (isValid(uriString)) {
             String[] parts = uriString.split(":");
             int currentPosition = parts[0].length();
             if (parts.length != 2 || Namespace.getNamespaceFor(parts[0]) == null) {
