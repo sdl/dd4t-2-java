@@ -68,52 +68,51 @@ public class TCMURI implements Serializable {
     }
 
     protected void load(String uriString) throws ParseException {
-        if (isValid(uriString)) {
-            String[] parts = uriString.split(":");
-            int currentPosition = parts[0].length();
-            if (parts.length != 2 || Namespace.getNamespaceFor(parts[0]) == null) {
-                throw new ParseException("URI string " + uriString + " does not start with '" + TCM.getValue() + "' or '"
-                        + ISH.getValue() + "'", currentPosition);
-            }
+        if (!isValid(uriString)) {
+            throw new ParseException("Invalid TCMURI string", 0);
+        }
+        String[] parts = uriString.split(":");
+        int currentPosition = parts[0].length();
+        if (parts.length != 2 || Namespace.getNamespaceFor(parts[0]) == null) {
+            throw new ParseException("URI string " + uriString + " does not start with '" + TCM.getValue() + "' or '"
+                    + ISH.getValue() + "'", currentPosition);
+        }
 
-            this.namespace = Namespace.getNamespaceFor(parts[0]);
-            String uri = parts[1];
-            StringTokenizer st = new StringTokenizer(uri, "-");
-            if (st.countTokens() < 2) {
-                throw new ParseException("URI string " + uriString + " does not contain enough ID's", currentPosition);
-            }
-            try {
-                String token = st.nextToken();
-                currentPosition += token.length();
-                this.pubId = Integer.parseInt(token);
+        this.namespace = Namespace.getNamespaceFor(parts[0]);
+        String uri = parts[1];
+        StringTokenizer st = new StringTokenizer(uri, "-");
+        if (st.countTokens() < 2) {
+            throw new ParseException("URI string " + uriString + " does not contain enough ID's", currentPosition);
+        }
+        try {
+            String token = st.nextToken();
+            currentPosition += token.length();
+            this.pubId = Integer.parseInt(token);
 
+            token = st.nextToken();
+            currentPosition += token.length();
+            this.itemId = Integer.parseInt(token);
+
+            if (!st.hasMoreTokens()) {
+                this.itemType = 16;
+            } else {
                 token = st.nextToken();
                 currentPosition += token.length();
-                this.itemId = Integer.parseInt(token);
-
-                if (!st.hasMoreTokens()) {
-                    this.itemType = 16;
+                if (!token.startsWith(DELIM_VERSION)) {
+                    this.itemType = Integer.parseInt(token);
                 } else {
+                    this.version = Integer.parseInt(token.substring(1, token.length()));
+                    this.itemType = 16;
+                }
+
+                if (st.hasMoreTokens()) {
                     token = st.nextToken();
                     currentPosition += token.length();
-                    if (!token.startsWith(DELIM_VERSION)) {
-                        this.itemType = Integer.parseInt(token);
-                    } else {
-                        this.version = Integer.parseInt(token.substring(1, token.length()));
-                        this.itemType = 16;
-                    }
-
-                    if (st.hasMoreTokens()) {
-                        token = st.nextToken();
-                        currentPosition += token.length();
-                        this.version = Integer.parseInt(token.substring(1, token.length()));
-                    }
+                    this.version = Integer.parseInt(token.substring(1, token.length()));
                 }
-            } catch (NumberFormatException e) {
-                throw new ParseException("Invalid ID (not an integer) in URI string " + uriString, currentPosition);
             }
-        } else {
-            throw new ParseException("Invalid TCMURI String, string cannot be null", 0);
+        } catch (NumberFormatException e) {
+            throw new ParseException("Invalid ID (not an integer) in URI string " + uriString, currentPosition);
         }
     }
 
