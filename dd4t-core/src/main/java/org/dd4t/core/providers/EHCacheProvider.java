@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -46,13 +47,16 @@ public class EHCacheProvider implements PayloadCacheProvider, CacheInvalidator,
 	 * The name of the EHCache that contains the cached items for this
 	 * application
 	 */
+	public static final String CONFIG_FILENAME = "/ehcache-legacy.xml";
 	public static final String CACHE_NAME = "DD4T-Objects";
 	public static final String CACHE_NAME_DEPENDENCY = "DD4T-Dependencies";
 	public static final String DEPENDENT_KEY_FORMAT = "%s:%s";
 	public static final int ADJUST_TTL = 2;
 	private static final Logger LOG = LoggerFactory.getLogger(EHCacheProvider.class);
-	private final Cache cache = CacheManager.create().getCache(CACHE_NAME);
-	private final Cache dependencyCache = CacheManager.create().getCache(CACHE_NAME_DEPENDENCY);
+
+	private final Cache cache;
+
+	private final Cache dependencyCache;
 	private int expiredTTL = 299;
 	private int cacheDependencyTTL = 299;
 	private int cacheTTL = 3599;
@@ -60,6 +64,14 @@ public class EHCacheProvider implements PayloadCacheProvider, CacheInvalidator,
 
 	public EHCacheProvider() {
 		LOG.debug("Starting cache provider");
+
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+		URL config = classLoader.getResource(CONFIG_FILENAME);
+		if (config == null) {
+			config = EHCacheProvider.class.getResource(CONFIG_FILENAME);
+		}
+		cache = CacheManager.create(config).getCache(CACHE_NAME);
+		dependencyCache = CacheManager.create(config).getCache(CACHE_NAME_DEPENDENCY);
 	}
 
 	private static String getKey(Serializable key) {
