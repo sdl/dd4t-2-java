@@ -150,6 +150,9 @@ public class EHCacheProvider implements PayloadCacheProvider, CacheInvalidator,
 				if (oldElement != null) {
 					currentElement = oldElement;
 				}
+				LOG.trace("No cache entry for key '{}' in DD4T cache '{}', the value is now put in cache", key, cache.getName());
+			} else {
+				LOG.trace("Cache entry for key '{}' found in DD4T cache '{}'", key, cache.getName());
 			}
 			CacheElement<T> cacheElement = (CacheElement<T>) currentElement.getObjectValue();
 			String dependencyKey = cacheElement.getDependentKey();
