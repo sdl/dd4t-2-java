@@ -29,7 +29,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -128,9 +133,30 @@ public class DataBindFactoryTest {
         assertNotNull(componentPresentation);
     }
 
+    @Test
+    public void testLoadEmbeddedFieldsFromJson() throws URISyntaxException, SerializationException, IOException {
+        //given
+        String page = FileUtils.readFileToString(new File(ClassLoader.getSystemResource("page_emb_fieldset.json").toURI()));
+        DataBinder databinder = applicationContext.getBean(DataBinder.class);
+
+        //when
+        Page deserializedPage = databinder.buildPage(page, PageImpl.class);
+
+        //then
+        List<Object> values = deserializedPage.getComponentPresentations().get(0)
+                .getComponent().getContent().get("articleBody").getValues();
+        assertTrue(values.size() == 1);
+
+        FieldSet fieldSet = (FieldSet) values.get(0);
+
+        Iterator<Map.Entry<String, Field>> iterator = fieldSet.getContent().entrySet().iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals("value article body", iterator.next().getValue().getValues().get(0));
+        assertFalse(iterator.hasNext());
+    }
 
     @Test
-    public void testManualPageCreationSerialization() throws JsonProcessingException {
+    public void testManualPageCreationSerialization() throws JsonProcessingException, SerializationException {
         //given
         PageImpl page = new PageImpl();
 
