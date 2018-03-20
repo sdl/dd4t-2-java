@@ -41,7 +41,7 @@ import java.util.Map;
 public class TridionFieldTypeIdResolver implements TypeIdResolver {
 
     private static final Logger LOG = LoggerFactory.getLogger(TridionFieldTypeIdResolver.class);
-    private static final EnumMap<FieldType, String> FIELD_TYPES = new EnumMap<>(FieldType.class);
+    private static final Map<FieldType, String> FIELD_TYPES = new EnumMap<>(FieldType.class);
     private static final String NAMESPACE_PREFIX = "org.dd4t.contentmodel.impl.";
     private static final String TEXT_FIELD = "TextField";
     private static final String COMPONENT_LINK_FIELD = "ComponentLinkField";
@@ -63,23 +63,23 @@ public class TridionFieldTypeIdResolver implements TypeIdResolver {
 
     private JavaType mBaseType;
 
-    public TridionFieldTypeIdResolver () {
+    public TridionFieldTypeIdResolver() {
     }
 
 
     @Override
-    public void init (final JavaType javaType) {
+    public void init(final JavaType javaType) {
         LOG.info("Instantiating TridionJsonFieldTypeResolver for " + javaType);
         mBaseType = javaType;
     }
 
     @Override
-    public String idFromValue (final Object o) {
+    public String idFromValue(final Object o) {
         return idFromValueAndType(o, o.getClass());
     }
 
     @Override
-    public String idFromValueAndType (final Object o, final Class<?> aClass) {
+    public String idFromValueAndType(final Object o, final Class<?> aClass) {
         String name = aClass.getName();
 
         if (null == o) {
@@ -90,12 +90,11 @@ public class TridionFieldTypeIdResolver implements TypeIdResolver {
     }
 
     @Override
-    public String idFromBaseType () {
+    public String idFromBaseType() {
         return "-1";
     }
 
-    @Override
-    public JavaType typeFromId (final String s) {
+    public JavaType typeFromId(final String s) {
         String clazzName = getClassForKey(s);
         Class<?> clazz;
 
@@ -111,16 +110,28 @@ public class TridionFieldTypeIdResolver implements TypeIdResolver {
     }
 
     @Override
-    public JavaType typeFromId (final DatabindContext databindContext, final String s) {
+    public JavaType typeFromId(final DatabindContext databindContext, final String s) {
         return typeFromId(s);
     }
 
     @Override
-    public JsonTypeInfo.Id getMechanism () {
+    public String getDescForKnownTypeIds() {
+
+        final StringBuilder knownTypeIds = new StringBuilder();
+        for (Map.Entry entry : FIELD_TYPES.entrySet()) {
+            knownTypeIds.append("[TypeId Key:").append(entry.getKey()).append(",").append("Type:").append(entry.getValue()).append("]");
+            knownTypeIds.append("\n");
+        }
+
+        return knownTypeIds.toString();
+    }
+
+    @Override
+    public JsonTypeInfo.Id getMechanism() {
         return JsonTypeInfo.Id.CUSTOM;
     }
 
-    public static String getClassForKey (String type) {
+    public static String getClassForKey(String type) {
 
         LOG.trace("Fetching field type for {}", type);
         FieldType fieldType;
@@ -137,7 +148,7 @@ public class TridionFieldTypeIdResolver implements TypeIdResolver {
         return result;
     }
 
-    private String getIdFromClass (String aClassName) {
+    private String getIdFromClass(String aClassName) {
         if (!aClassName.startsWith(NAMESPACE_PREFIX)) {
             aClassName = NAMESPACE_PREFIX + aClassName;
         }

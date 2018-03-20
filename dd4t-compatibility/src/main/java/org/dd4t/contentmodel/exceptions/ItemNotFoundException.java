@@ -15,19 +15,19 @@
  */
 package org.dd4t.contentmodel.exceptions;
 
-public class ItemNotFoundException extends Exception {
+public class ItemNotFoundException extends org.dd4t.core.exceptions.ItemNotFoundException {
 
     private static final long serialVersionUID = 8243724759254216595L;
 
-    public ItemNotFoundException (String message) {
+    public ItemNotFoundException(String message) {
         super(message);
     }
 
-    public ItemNotFoundException (Throwable t) {
+    public ItemNotFoundException(Throwable t) {
         super(t);
     }
 
-    public ItemNotFoundException (String message, Throwable t) {
+    public ItemNotFoundException(String message, Throwable t) {
         super(message, t);
     }
 }

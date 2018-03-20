@@ -1,5 +1,6 @@
 package org.dd4t.mvc.tags;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dd4t.core.databind.TridionViewModel;
 import org.dd4t.mvc.utils.XPMRenderer;
@@ -18,6 +19,8 @@ import java.io.IOException;
  */
 public class XPMComponentFieldTag extends BodyTagSupport {
 
+
+    private static final long serialVersionUID = -572209173487510785L;
     private transient TridionViewModel model;
     private String field;
     private int index;
@@ -25,7 +28,7 @@ public class XPMComponentFieldTag extends BodyTagSupport {
     private Boolean useEnclosingTags = true;
 
     @Override
-    public int doAfterBody () throws JspException {
+    public int doAfterBody() throws JspException {
         XPMRenderer factory = XPMRenderer.getInstance();
         BodyContent content = getBodyContent();
         StringBuilder out = new StringBuilder();
@@ -54,53 +57,56 @@ public class XPMComponentFieldTag extends BodyTagSupport {
             out.append(content.getString());
         }
 
+        JspWriter writer = null;
         try {
-            JspWriter writer = content.getEnclosingWriter();
+            writer = content.getEnclosingWriter();
             writer.write(out.toString());
         } catch (IOException e) {
             throw new JspException("Failed to write body content", e);
+        } finally {
+            IOUtils.closeQuietly(writer);
         }
 
         return SKIP_BODY;
     }
 
-    public TridionViewModel getModel () {
+    public TridionViewModel getModel() {
         return model;
     }
 
-    public void setModel (TridionViewModel model) {
+    public void setModel(TridionViewModel model) {
         this.model = model;
     }
 
-    public String getField () {
+    public String getField() {
         return field;
     }
 
-    public void setField (String field) {
+    public void setField(String field) {
         this.field = field;
     }
 
-    public int getIndex () {
+    public int getIndex() {
         return index;
     }
 
-    public void setIndex (int index) {
+    public void setIndex(int index) {
         this.index = index;
     }
 
-    public String getEnclosed () {
+    public String getEnclosed() {
         return enclosed;
     }
 
-    public void setEnclosed (String enclosed) {
+    public void setEnclosed(String enclosed) {
         this.enclosed = enclosed;
     }
 
-    public Boolean isUseEnclosingTags () {
+    public Boolean isUseEnclosingTags() {
         return useEnclosingTags;
     }
 
-    public void setUseEnclosingTags (final Boolean useEnclosingTags) {
+    public void setUseEnclosingTags(final Boolean useEnclosingTags) {
         this.useEnclosingTags = useEnclosingTags;
     }
 }

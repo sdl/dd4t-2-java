@@ -24,21 +24,23 @@ import org.dd4t.contentmodel.PublicationDescriptor;
  * @author R. Kempees
  */
 public interface PublicationProvider {
-    int discoverPublicationIdByPageUrlPath (final String url);
+    int discoverPublicationIdByPageUrlPath(final String url);
 
-    int discoverPublicationByBaseUrl (String fullUrl);
+    int discoverPublicationByBaseUrl(String fullUrl);
 
-    String discoverPublicationUrl (final int publicationId);
+    int discoverPublicationByImagesUrl(String fullUrl);
 
-    String discoverPublicationPath (int publicationId);
+    String discoverPublicationUrl(final int publicationId);
 
-    String discoverImagesUrl (int publicationId);
+    String discoverPublicationPath(int publicationId);
 
-    String discoverImagesPath (int publicationId);
+    String discoverImagesUrl(int publicationId);
 
-    String discoverPublicationTitle (int publicationId);
+    String discoverImagesPath(int publicationId);
 
-    String discoverPublicationKey (int publicationId);
+    String discoverPublicationTitle(int publicationId);
 
-    PublicationDescriptor getPublicationDescriptor (int publicationId);
+    String discoverPublicationKey(int publicationId);
+
+    PublicationDescriptor getPublicationDescriptor(int publicationId);
 }

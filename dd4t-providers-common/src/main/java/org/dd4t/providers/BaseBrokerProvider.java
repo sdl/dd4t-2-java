@@ -18,7 +18,7 @@ package org.dd4t.providers;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.CharEncoding;
-import org.dd4t.core.caching.CacheType;
+import org.dd4t.caching.CacheType;
 import org.dd4t.core.exceptions.SerializationException;
 import org.dd4t.core.util.CompressionUtils;
 import org.slf4j.Logger;
@@ -43,11 +43,13 @@ public abstract class BaseBrokerProvider {
 
     // Set these values in Spring configuration
     protected boolean contentIsCompressed = true;
-    protected final boolean contentIsBase64Encoded = true;
+    protected boolean contentIsBase64Encoded = true;
+
+
     @Resource
     protected PayloadCacheProvider cacheProvider;
 
-    public static String convertStreamToString (InputStream is) throws IOException {
+    public static String convertStreamToString(InputStream is) throws IOException {
         /*
          * To convert the InputStream to String we use the
 		 * BufferedReader.readLine() method. We iterate until the BufferedReader
@@ -76,8 +78,16 @@ public abstract class BaseBrokerProvider {
      *
      * @param contentIsCompressed String representing a boolean value
      */
-    public void setContentIsCompressed (final String contentIsCompressed) {
+    public void setContentIsCompressed(final String contentIsCompressed) {
         this.contentIsCompressed = Boolean.parseBoolean(contentIsCompressed);
+    }
+
+    public boolean isContentIsBase64Encoded() {
+        return contentIsBase64Encoded;
+    }
+
+    public void setContentIsBase64Encoded(boolean contentIsBase64Encoded) {
+        this.contentIsBase64Encoded = contentIsBase64Encoded;
     }
 
     /**
@@ -89,7 +99,7 @@ public abstract class BaseBrokerProvider {
      * @return String the decoded/decompressed content
      * @throws SerializationException if the given content cannot be decoded or decompressed
      */
-    protected String decodeAndDecompressContent (final String content) throws SerializationException {
+    protected String decodeAndDecompressContent(final String content) throws SerializationException {
         try {
             if (!contentIsBase64Encoded) {
                 return content;
@@ -116,7 +126,7 @@ public abstract class BaseBrokerProvider {
      * @param url String representing the message to encode
      * @return String the Base64 encoded string
      */
-    protected String encodeUrl (final String url) {
+    protected String encodeUrl(final String url) {
 
         if (url == null) {
             return "";
@@ -142,12 +152,12 @@ public abstract class BaseBrokerProvider {
      * @param url  the path part of the URL of a Tridion item
      * @return String representing the key pointing to a URL value
      */
-    protected String getKey (CacheType type, String url) {
+    protected String getKey(CacheType type, String url) {
         return String.format("%s-%s", type, url);
     }
 
 
-    public void setCacheProvider (final PayloadCacheProvider cacheProvider) {
+    public void setCacheProvider(final PayloadCacheProvider cacheProvider) {
         this.cacheProvider = cacheProvider;
     }
 }

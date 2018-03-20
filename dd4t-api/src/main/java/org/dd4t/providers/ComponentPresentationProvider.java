@@ -41,10 +41,12 @@ public interface ComponentPresentationProvider {
      * @throws ItemNotFoundException  if the requested DCP does not exist
      * @throws SerializationException if something went wrong during deserialization
      */
-    String getDynamicComponentPresentation (int componentId, int publicationId) throws ItemNotFoundException, SerializationException;
+    String getDynamicComponentPresentation(int componentId, int publicationId) throws ItemNotFoundException,
+            SerializationException;
 
     /**
-     * Retrieves content of a Dynamic Component Presentation by looking up its componentId, templateId and publicationId.
+     * Retrieves content of a Dynamic Component Presentation by looking up its componentId, templateId and
+     * publicationId.
      *
      * @param componentId   int representing the Component item id
      * @param templateId    int representing the Component Template item id
@@ -53,7 +55,40 @@ public interface ComponentPresentationProvider {
      * @throws ItemNotFoundException  if the requested DCP does not exist
      * @throws SerializationException if something went wrong during deserialization
      */
-    String getDynamicComponentPresentation (int componentId, int templateId, int publicationId) throws ItemNotFoundException, SerializationException;
+    String getDynamicComponentPresentation(int componentId, int templateId, int publicationId) throws
+            ItemNotFoundException, SerializationException;
+
+    /**
+     * Retrieves content of a Dynamic Component Presentation by looking up its componentId and publicationId.
+     * A templateId is not provided, so the DCP with the highest linking priority is retrieved.
+     * <p/>
+     * <b>Note: This method performs significantly slower than getDynamicComponentPresentation(int, int, int)!
+     * Do provide a templateId!</b>
+     *
+     * @param componentId   int representing the Component item id
+     * @param publicationId int representing the Publication id of the DCP
+     * @return ComponentPresentationResultItem<String> representing the DCP
+     * @throws ItemNotFoundException  if the requested DCP does not exist
+     * @throws SerializationException if something went wrong during deserialization
+     */
+    ComponentPresentationResultItem<String> getDynamicComponentPresentationItem(int componentId, int publicationId)
+            throws ItemNotFoundException, SerializationException;
+
+
+    /**
+     * Retrieves content of a Dynamic Component Presentation by looking up its componentId, templateId and
+     * publicationId.
+     *
+     * @param componentId   int representing the Component item id
+     * @param templateId    int representing the Component Template item id
+     * @param publicationId int representing the Publication id of the DCP
+     * @return ComponentPresentationResultItem<String> representing the DCP
+     * @throws ItemNotFoundException  if the requested DCP does not exist
+     * @throws SerializationException if something went wrong during deserialization
+     */
+    ComponentPresentationResultItem<String> getDynamicComponentPresentationItem(int componentId, int templateId, int
+            publicationId) throws ItemNotFoundException, SerializationException;
+
 
     /**
      * Convenience method to obtain a list of component presentations for the same template id.
@@ -65,5 +100,6 @@ public interface ComponentPresentationProvider {
      * @throws ItemNotFoundException
      * @throws SerializationException
      */
-    List<String> getDynamicComponentPresentations (String[] itemUris, int templateId, int publicationId) throws ItemNotFoundException, SerializationException;
+    List<String> getDynamicComponentPresentations(String[] itemUris, int templateId, int publicationId) throws
+            ItemNotFoundException, SerializationException;
 }

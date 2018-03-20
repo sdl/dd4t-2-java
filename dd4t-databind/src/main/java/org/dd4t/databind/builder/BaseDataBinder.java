@@ -16,6 +16,9 @@
 
 package org.dd4t.databind.builder;
 
+import io.github.lukehutch.fastclasspathscanner.FastClasspathScanner;
+import io.github.lukehutch.fastclasspathscanner.scanner.ClassInfo;
+import io.github.lukehutch.fastclasspathscanner.scanner.ScanResult;
 import org.apache.commons.lang3.StringUtils;
 import org.dd4t.contentmodel.Component;
 import org.dd4t.contentmodel.ComponentPresentation;
@@ -27,9 +30,6 @@ import org.dd4t.databind.annotations.ViewModel;
 import org.dd4t.databind.util.DataBindConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
-import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
-import org.springframework.core.type.filter.AnnotationTypeFilter;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
@@ -45,15 +45,19 @@ import java.util.concurrent.ConcurrentMap;
  * - Loads configs
  * - Preloads model classes
  * - Gives a unified / single design pattern to load concrete ModelConverters
- * <p/>
- * TODO: Build an XML dataConverter!
  *
  * @author R. Kempees
  * @since 17/11/14.
  */
 public abstract class BaseDataBinder {
     private static final Logger LOG = LoggerFactory.getLogger(BaseDataBinder.class);
-    protected static final ConcurrentMap<String, Class<? extends BaseViewModel>> VIEW_MODELS = new ConcurrentHashMap<>();
+
+
+    protected static final ConcurrentMap<String, List<Class<? extends BaseViewModel>>> VIEW_MODELS = new
+            ConcurrentHashMap<>();
+    protected static final ConcurrentMap<String, List<Class<? extends BaseViewModel>>> ABSTRACT_OR_INTERFACE_MODELS =
+            new ConcurrentHashMap<>();
+
 
     protected ModelConverter converter;
     protected String viewModelMetaKeyName;
@@ -65,87 +69,89 @@ public abstract class BaseDataBinder {
     protected Class<? extends Component> concreteComponentImpl;
     protected Class<? extends Field> concreteFieldImpl;
 
-    public void setConcreteComponentTemplateImpl (final Class<? extends ComponentTemplate> concreteComponentTemplateImpl) {
+    public void setConcreteComponentTemplateImpl(final Class<? extends ComponentTemplate>
+                                                         concreteComponentTemplateImpl) {
         this.concreteComponentTemplateImpl = concreteComponentTemplateImpl;
     }
 
-    public void setConcreteComponentPresentationImpl (final Class<? extends ComponentPresentation> concreteComponentPresentationImpl) {
+    public void setConcreteComponentPresentationImpl(final Class<? extends ComponentPresentation>
+                                                             concreteComponentPresentationImpl) {
         this.concreteComponentPresentationImpl = concreteComponentPresentationImpl;
     }
 
-    public void setConcreteComponentImpl (final Class<? extends Component> concreteComponentImpl) {
+    public void setConcreteComponentImpl(final Class<? extends Component> concreteComponentImpl) {
         this.concreteComponentImpl = concreteComponentImpl;
     }
 
-    public void setConverter (final ModelConverter converter) {
+    public void setConverter(final ModelConverter converter) {
         this.converter = converter;
     }
 
-    public void setViewModelMetaKeyName (final String viewModelMetaKeyName) {
+    public void setViewModelMetaKeyName(final String viewModelMetaKeyName) {
         this.viewModelMetaKeyName = viewModelMetaKeyName;
     }
 
-    public void setViewModelPackageRoot (final String viewModelPackageRoot) {
+    public void setViewModelPackageRoot(final String viewModelPackageRoot) {
         this.viewModelPackageRoot = viewModelPackageRoot;
     }
 
-    public void setRenderDefaultComponentModelsOnly (final boolean renderDefaultComponentModelsOnly) {
+    public void setRenderDefaultComponentModelsOnly(final boolean renderDefaultComponentModelsOnly) {
         this.renderDefaultComponentModelsOnly = renderDefaultComponentModelsOnly;
     }
 
-    public void setRenderDefaultComponentsIfNoModelFound (final boolean renderDefaultComponentsIfNoModelFound) {
+    public void setRenderDefaultComponentsIfNoModelFound(final boolean renderDefaultComponentsIfNoModelFound) {
         this.renderDefaultComponentsIfNoModelFound = renderDefaultComponentsIfNoModelFound;
     }
 
-    public boolean isRenderDefaultComponentModelsOnly () {
+    public boolean isRenderDefaultComponentModelsOnly() {
         return renderDefaultComponentModelsOnly;
     }
 
-    public boolean isRenderDefaultComponentsIfNoModelFound () {
+    public boolean isRenderDefaultComponentsIfNoModelFound() {
         return renderDefaultComponentsIfNoModelFound;
     }
 
-    public Class<? extends ComponentPresentation> getConcreteComponentPresentationImpl () {
+    public Class<? extends ComponentPresentation> getConcreteComponentPresentationImpl() {
         return concreteComponentPresentationImpl;
     }
 
-    public Class<? extends ComponentTemplate> getConcreteComponentTemplateImpl () {
+    public Class<? extends ComponentTemplate> getConcreteComponentTemplateImpl() {
         return concreteComponentTemplateImpl;
     }
 
-    public Class<? extends Component> getConcreteComponentImpl () {
+    public Class<? extends Component> getConcreteComponentImpl() {
         return concreteComponentImpl;
     }
 
-    public void setConcreteFieldImpl (final Class<? extends Field> concreteFieldImpl) {
+    public void setConcreteFieldImpl(final Class<? extends Field> concreteFieldImpl) {
         this.concreteFieldImpl = concreteFieldImpl;
     }
 
-    public boolean renderDefaultComponentModelsOnly () {
+    public boolean renderDefaultComponentModelsOnly() {
         return renderDefaultComponentModelsOnly;
     }
 
-    public boolean renderDefaultComponentsIfNoModelFound () {
+    public boolean renderDefaultComponentsIfNoModelFound() {
         return renderDefaultComponentsIfNoModelFound;
     }
 
-    public ModelConverter getConverter () {
+    public ModelConverter getConverter() {
         return converter;
     }
 
-    public String getViewModelMetaKeyName () {
+    public String getViewModelMetaKeyName() {
         return viewModelMetaKeyName;
     }
 
-    public String getViewModelPackageRoot () {
+    public String getViewModelPackageRoot() {
         return viewModelPackageRoot;
     }
 
-    public Class<? extends Field> getConcreteFieldImpl () {
+    public Class<? extends Field> getConcreteFieldImpl() {
         return concreteFieldImpl;
     }
 
-    protected static BaseViewModel getModelOrNullForExistingEntry (Map<String, BaseViewModel> models, Class modelClass) {
+    protected static BaseViewModel getModelOrNullForExistingEntry(Map<String, BaseViewModel> models, Class modelClass) {
         for (BaseViewModel baseViewModel : models.values()) {
             LOG.debug(baseViewModel.getClass().getName() + "==" + modelClass.getName());
             if (baseViewModel.getClass().equals(modelClass)) {
@@ -155,10 +161,45 @@ public abstract class BaseDataBinder {
         return null;
     }
 
-    @PostConstruct
-    protected abstract void init ();
+    public boolean classHasViewModelDerivatives(String className) {
+        return ABSTRACT_OR_INTERFACE_MODELS.containsKey(className);
+    }
 
-    protected void checkViewModelConfiguration () {
+    public Class<? extends BaseViewModel> getConcreteModel(final String className, final String rootElementName) {
+        // Check if we have a model class for the root element name
+        // Check if it matches the interface or abstract class
+
+        if (VIEW_MODELS.containsKey(rootElementName)) {
+            final List<Class<? extends BaseViewModel>> modelClasses = VIEW_MODELS.get(rootElementName);
+
+            if (modelClasses == null || modelClasses.isEmpty()) {
+                return null;
+            }
+
+            if (ABSTRACT_OR_INTERFACE_MODELS.containsKey(className)) {
+                final List<Class<? extends BaseViewModel>> concreteClasses = ABSTRACT_OR_INTERFACE_MODELS.get
+                        (className);
+
+
+                for (Class<? extends BaseViewModel> clazz : concreteClasses) {
+                    for (Class<? extends BaseViewModel> modelClass : modelClasses) {
+                        LOG.debug(clazz.getClass().getName() + "==" + modelClass.getName());
+                        if (modelClass.equals(clazz)) {
+                            return clazz;
+                        }
+                    }
+                }
+
+            }
+        }
+        return null;
+
+    }
+
+    @PostConstruct
+    protected abstract void init();
+
+    protected void checkViewModelConfiguration() {
         if (StringUtils.isEmpty(viewModelMetaKeyName)) {
             this.viewModelMetaKeyName = DataBindConstants.VIEW_MODEL_DEFAULT_META_KEY;
             LOG.warn("Setting meta key to default: " + DataBindConstants.VIEW_MODEL_DEFAULT_META_KEY);
@@ -166,45 +207,146 @@ public abstract class BaseDataBinder {
 
         if (StringUtils.isEmpty(viewModelPackageRoot)) {
             this.viewModelPackageRoot = DataBindConstants.VIEW_MODEL_DEFAULT_NAMESPACE;
-            LOG.warn("No package root configured for view models. Using the default package: " + DataBindConstants.VIEW_MODEL_DEFAULT_NAMESPACE);
+            LOG.warn("No package root configured for view models. Using the default package: " + DataBindConstants
+                    .VIEW_MODEL_DEFAULT_NAMESPACE);
         }
 
         LOG.info("View model key name is: " + this.viewModelMetaKeyName);
         LOG.info("Root package for View models is: " + this.viewModelPackageRoot);
     }
 
-    protected void scanAndLoadModels () {
+    protected void scanAndLoadModels() {
         LOG.info("Init: scanning view models.");
-        final ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AnnotationTypeFilter(ViewModel.class));
-        for (BeanDefinition bd : scanner.findCandidateComponents(this.viewModelPackageRoot)) {
-            try {
-                final Class clazz = Class.forName(bd.getBeanClassName());
-                if (clazz != null) {
-                    LOG.debug("Loading class: " + clazz.getCanonicalName());
-                    final ViewModel viewModelParameters = (ViewModel) clazz.getAnnotation(ViewModel.class);
 
-                    if (hasProperModelInformation(viewModelParameters, clazz)) {
-                        LOG.debug("Parameters: Viewmodel name(s):{}, Root Element name(s){}, Set Component: {}, Set raw: {} ", new Object[]{viewModelParameters.viewModelNames(), viewModelParameters.rootElementNames(), viewModelParameters.setComponentObject(), viewModelParameters.setRawData()});
-                        storeModelClass(viewModelParameters, clazz);
-                    }
+        final FastClasspathScanner scanner = new FastClasspathScanner(this.viewModelPackageRoot);
+        final ScanResult scanResult = scanner.scan();
+
+        for (Map.Entry<String, ClassInfo> classInfoEntry : scanResult.getClassNameToClassInfo().entrySet()) {
+            LOG.info(classInfoEntry.getValue().getClassName());
+            processClass(classInfoEntry.getValue());
+        }
+        LOG.info("Init: Done scanning view models.");
+    }
+
+    private void processClass(final ClassInfo classInfo) {
+
+        LOG.debug("Name: {}, Has abstracts or interfaces: {}", classInfo.getClassName(), !classInfo
+                .getDirectlyImplementedInterfaces().isEmpty() || hasNonStandardParent(classInfo));
+
+        if (isDatabindStandardClass(classInfo) || classInfo.getClassName().equals(Object.class.getCanonicalName())) {
+            LOG.debug("Not processing standard class: " + classInfo.getClassName());
+            return;
+        }
+
+        try {
+
+            if (classInfo.hasAnnotation(DataBindConstants.VIEW_MODEL_ANNOTATION_NAME)) {
+                processViewModelClass(classInfo);
+            } else if (classInfo.isImplementedInterface()) {
+                processInterfaceForModels(classInfo);
+            }
+
+            if (classInfo.getSubclasses() != null && !classInfo.getSubclasses().isEmpty()) {
+                LOG.debug("we have subclasses. processing.");
+
+
+                for (ClassInfo subClassInfo : classInfo.getSubclasses()) {
+
+                    final Class<? extends BaseViewModel> concreteModelClass = (Class<? extends BaseViewModel>) Class
+                            .forName(subClassInfo.getClassName());
+                    addAbstractOrInterfaceToWatchList(classInfo, concreteModelClass);
+                    processClass(subClassInfo);
                 }
-                LOG.info("Init: Done scanning view models.");
-            } catch (ClassNotFoundException e) {
-                LOG.error("Unexpected exception", e);
+            }
+        } catch (ClassNotFoundException e) {
+            LOG.error("Unexpected exception", e);
+        }
+    }
+
+    private void processInterfaceForModels(final ClassInfo classInfo) throws ClassNotFoundException {
+        LOG.debug("This is an interface. Searching for classes which are ViewModels which implement this interface");
+
+        for (ClassInfo implementingClass : classInfo.getClassesImplementing()) {
+            LOG.debug(implementingClass.getClassName() + " implements interface: " + classInfo.getClassName() + ". " +
+                    "Making note of it.");
+
+            final Class<? extends BaseViewModel> concreteModelClass = (Class<? extends BaseViewModel>) Class.forName
+                    (implementingClass.getClassName());
+            addAbstractOrInterfaceToWatchList(classInfo, concreteModelClass);
+            processClass(implementingClass);
+            LOG.info("Added interface: {}, direct class: {}", classInfo.getClassName(), implementingClass
+                    .getClassName());
+        }
+    }
+
+    private static void addAbstractOrInterfaceToWatchList(final ClassInfo classInfo, final Class<? extends
+            BaseViewModel> concreteModelClass) {
+        final List<Class<? extends BaseViewModel>> concreteClasses;
+        if (ABSTRACT_OR_INTERFACE_MODELS.containsKey(classInfo.getClassName())) {
+            concreteClasses = ABSTRACT_OR_INTERFACE_MODELS.get(classInfo.getClassName());
+
+
+            if (!concreteClasses.contains(concreteModelClass)) {
+                concreteClasses.add(concreteModelClass);
+            }
+        } else {
+            concreteClasses = new ArrayList<>();
+            concreteClasses.add(concreteModelClass);
+            ABSTRACT_OR_INTERFACE_MODELS.putIfAbsent(classInfo.getClassName(), concreteClasses);
+        }
+    }
+
+    private void processViewModelClass(final ClassInfo classInfo) throws ClassNotFoundException {
+        final Class<? extends BaseViewModel> clazz = (Class<? extends BaseViewModel>) Class.forName(classInfo
+                .getClassName());
+
+        if (clazz != null) {
+            LOG.debug("Loading class: " + clazz.getCanonicalName());
+
+
+            final ViewModel viewModelParameters = clazz.getAnnotation(ViewModel.class);
+
+            if (hasProperModelInformation(viewModelParameters, clazz)) {
+                LOG.debug("Parameters: Viewmodel name(s):{}, Root Element name(s){}, Set Component: {}, Set raw: {} " +
+                        "", new Object[]{viewModelParameters.viewModelNames(), viewModelParameters.rootElementNames()
+                        , viewModelParameters.setComponentObject(), viewModelParameters.setRawData()});
+                storeModelClass(viewModelParameters, clazz);
             }
         }
     }
 
-    private boolean hasProperModelInformation (ViewModel viewModelParameters, Class clazz) {
+    private boolean isDatabindStandardClass(ClassInfo classInfo) {
+        return classInfo.getClassName().equals(DataBindConstants.VIEW_MODEL_ANNOTATION) || classInfo.getClassName()
+                .equals(DataBindConstants.VIEW_MODEL_BASE_CLASS_NAME) || isTridionViewModelClass(classInfo);
+    }
 
-        if (viewModelParameters.rootElementNames().length == 0 && viewModelParameters.viewModelNames().length == 0 && !viewModelParameters.setComponentObject()) {
-            LOG.warn("No viewmodel and rootelement name configuration set and SetComponentObject is false. Not using this model: {}", clazz.getCanonicalName());
+    private boolean isTridionViewModelClass(ClassInfo classInfo) {
+        return classInfo.getClassName().equals(DataBindConstants.TRIDION_VIEW_MODEL_BASE_CLASS_NAME) || classInfo
+                .getClassName().equals(DataBindConstants.TRIDION_VIEW_MODEL_INTERFACE) || classInfo.getClassName()
+                .equals(DataBindConstants.BASE_VIEW_MODEL_INTERFACE);
+    }
+
+    private boolean hasNonStandardParent(ClassInfo classInfo) {
+        final ClassInfo superClass = classInfo.getDirectSuperclass();
+
+        return superClass != null && (!superClass.getClassName().equals(DataBindConstants.VIEW_MODEL_BASE_CLASS_NAME)
+                && !superClass.getClassName().equals(DataBindConstants.TRIDION_VIEW_MODEL_BASE_CLASS_NAME));
+
+    }
+
+    private boolean hasProperModelInformation(ViewModel viewModelParameters, Class clazz) {
+
+        if (viewModelParameters.rootElementNames().length == 0 && viewModelParameters.viewModelNames().length == 0 &&
+                !viewModelParameters.setComponentObject()) {
+            LOG.warn("No viewmodel and rootelement name configuration set and SetComponentObject is false. Not using " +
+                    "this model: {}", clazz.getCanonicalName());
             return false;
         }
 
-        if (StringUtils.isEmpty(viewModelParameters.rootElementNames()[0]) && StringUtils.isEmpty(viewModelParameters.viewModelNames()[0]) && !viewModelParameters.setComponentObject()) {
-            LOG.warn("No viewmodel and rootelement name configuration set and SetComponentObject is false. Not using this model: {}", clazz.getCanonicalName());
+        if (StringUtils.isEmpty(viewModelParameters.rootElementNames()[0]) && StringUtils.isEmpty(viewModelParameters
+                .viewModelNames()[0]) && !viewModelParameters.setComponentObject()) {
+            LOG.warn("No viewmodel and rootelement name configuration set and SetComponentObject is false. Not using " +
+                    "this model: {}", clazz.getCanonicalName());
             return false;
         }
 
@@ -219,31 +361,51 @@ public abstract class BaseDataBinder {
      * <p/>
      * We should be able to match both view models and schema root element names. So the
      */
-    private static void storeModelClass (final ViewModel viewModelParameters, final Class model) {
+    private static void storeModelClass(final ViewModel viewModelParameters, final Class<? extends BaseViewModel>
+            model) {
 
         final List<String> modelNames = new ArrayList<>();
         String[] viewModelNames = viewModelParameters.viewModelNames();
 
-        if (null != viewModelNames && viewModelNames.length > 0) {
+        if (viewModelNames.length > 0) {
             modelNames.addAll(Arrays.asList(viewModelNames));
 
         }
         String[] rootElementNames = viewModelParameters.rootElementNames();
-        if (null != rootElementNames && rootElementNames.length > 0) {
+        if (rootElementNames.length > 0) {
             modelNames.addAll(Arrays.asList(rootElementNames));
         }
         storeModelClassForModelNames(modelNames, model);
     }
 
-    private static void storeModelClassForModelNames (final List<String> viewModelNames, final Class model) {
+    private static void storeModelClassForModelNames(final List<String> viewModelNames, final Class<? extends
+            BaseViewModel> model) {
         for (String viewModelName : viewModelNames) {
             LOG.info("Storing viewModelName: {}, for class: {}", viewModelName, model.toString());
-            if (VIEW_MODELS.containsKey(viewModelName)) {
 
-                // TODO: same name, different model!
-                LOG.warn("Key: {} already exists! Model for key is: {}", viewModelName, model.toString());
-            } else {
-                VIEW_MODELS.put(viewModelName, model);
+
+            if (StringUtils.isNotEmpty(viewModelName)) {
+
+                List<Class<? extends BaseViewModel>> classList = VIEW_MODELS.get(viewModelName);
+                if (classList == null) {
+                    classList = new ArrayList<>();
+                    classList.add(model);
+
+                    // Store different classes for the same key
+                    // Determine which class to use at deserialization time?
+                    // No, just deserialize all.
+
+
+                    VIEW_MODELS.putIfAbsent(viewModelName, classList);
+
+
+                } else {
+                    LOG.info("Key: {} already exists. Model for key is: {}", viewModelName, model.toString());
+
+                    if (!classList.contains(model)) {
+                        classList.add(model);
+                    }
+                }
             }
         }
     }

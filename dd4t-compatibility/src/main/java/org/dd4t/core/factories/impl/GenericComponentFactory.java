@@ -22,30 +22,36 @@ import org.dd4t.contentmodel.exceptions.NotAuthenticatedException;
 import org.dd4t.contentmodel.exceptions.NotAuthorizedException;
 import org.dd4t.core.exceptions.FactoryException;
 import org.dd4t.core.factories.ComponentFactory;
+import org.dd4t.core.factories.ComponentPresentationFactory;
 import org.dd4t.core.request.RequestContext;
 import org.dd4t.providers.PayloadCacheProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Resource;
+
 /**
  * Backwards compatibility class
- * @author Rogier Oudshoorn
  *
+ * @author Rogier Oudshoorn
  */
 public class GenericComponentFactory extends BaseFactory implements ComponentFactory {
+    @Resource
+    protected ComponentPresentationFactory componentPresentationFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(GenericComponentFactory.class);
 
     @Override
-    public void setCacheProvider (PayloadCacheProvider cacheAgent) {
+    public void setCacheProvider(PayloadCacheProvider cacheAgent) {
         // necessary setter, but don't bother
     }
 
     @Override
-    public Component getComponent (String uri) throws ItemNotFoundException, NotAuthorizedException, NotAuthenticatedException {
+    public Component getComponent(String uri) throws ItemNotFoundException, NotAuthorizedException,
+            NotAuthenticatedException {
         ComponentPresentation cp;
         try {
-            cp = ComponentPresentationFactoryImpl.getInstance().getComponentPresentation(uri, null);
+            cp = componentPresentationFactory.getComponentPresentation(uri);
         } catch (FactoryException e) {
             LOG.error(e.getLocalizedMessage(), e);
             return null;
@@ -55,15 +61,17 @@ public class GenericComponentFactory extends BaseFactory implements ComponentFac
     }
 
     @Override
-    public Component getComponent (String uri, RequestContext context) throws ItemNotFoundException, NotAuthorizedException, NotAuthenticatedException {
+    public Component getComponent(String uri, RequestContext context) throws ItemNotFoundException,
+            NotAuthorizedException, NotAuthenticatedException {
         return getComponent(uri);
     }
 
     @Override
-    public Component getComponent (String componentUri, String componentTemplateUri) throws ItemNotFoundException, NotAuthorizedException, NotAuthenticatedException {
+    public Component getComponent(String componentUri, String componentTemplateUri) throws ItemNotFoundException,
+            NotAuthorizedException, NotAuthenticatedException {
         ComponentPresentation cp;
         try {
-            cp = ComponentPresentationFactoryImpl.getInstance().getComponentPresentation(componentUri, componentTemplateUri);
+            cp = componentPresentationFactory.getComponentPresentation(componentUri, componentTemplateUri);
         } catch (FactoryException e) {
             LOG.error(e.getLocalizedMessage(), e);
             return null;
@@ -73,16 +81,23 @@ public class GenericComponentFactory extends BaseFactory implements ComponentFac
     }
 
     @Override
-    public Component getComponent (String componentUri, String componentTemplateUri, RequestContext context) throws ItemNotFoundException, NotAuthorizedException, NotAuthenticatedException {
+    public Component getComponent(String componentUri, String componentTemplateUri, RequestContext context) throws
+            ItemNotFoundException, NotAuthorizedException, NotAuthenticatedException {
         return getComponent(componentUri, componentTemplateUri);
     }
 
     @Override
-    public Component getEmbeddedComponent (String uri) throws ItemNotFoundException {
+    public Component getEmbeddedComponent(String uri) throws ItemNotFoundException {
         // Discuss if this is somehting we still should support, we probably do ...
 
         return null;
     }
 
+    public ComponentPresentationFactory getComponentPresentationFactory() {
+        return componentPresentationFactory;
+    }
 
+    public void setComponentPresentationFactory(ComponentPresentationFactory componentPresentationFactory) {
+        this.componentPresentationFactory = componentPresentationFactory;
+    }
 }

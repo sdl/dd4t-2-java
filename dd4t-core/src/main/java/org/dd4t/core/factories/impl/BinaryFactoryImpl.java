@@ -16,8 +16,8 @@
 
 package org.dd4t.core.factories.impl;
 
+import org.dd4t.caching.CacheElement;
 import org.dd4t.contentmodel.Binary;
-import org.dd4t.core.caching.CacheElement;
 import org.dd4t.core.exceptions.FactoryException;
 import org.dd4t.core.exceptions.ItemNotFoundException;
 import org.dd4t.core.factories.BinaryFactory;
@@ -35,18 +35,11 @@ import java.text.ParseException;
 public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(BinaryFactoryImpl.class);
-    // Singleton implementation
-    private static final BinaryFactoryImpl INSTANCE = new BinaryFactoryImpl();
 
-    private PayloadCacheProvider cacheProvider;
     private BinaryProvider binaryProvider;
 
-    protected BinaryFactoryImpl () {
+    public BinaryFactoryImpl() {
         LOG.debug("Create new instance");
-    }
-
-    public static BinaryFactoryImpl getInstance () {
-        return INSTANCE;
     }
 
     /**
@@ -58,7 +51,7 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
      * @throws org.dd4t.core.exceptions.FactoryException
      */
     @Override
-    public Binary getBinaryByURI (final String tcmUri) throws FactoryException {
+    public Binary getBinaryByURI(final String tcmUri) throws FactoryException {
         LOG.debug("Enter getBinaryByURI with uri: {}", tcmUri);
 
         CacheElement<Binary> cacheElement = cacheProvider.loadPayloadFromLocalCache(tcmUri);
@@ -68,17 +61,18 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
             //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (cacheElement) {
                 if (cacheElement.isExpired()) {
-                    cacheElement.setExpired(false);
                     try {
                         binary = binaryProvider.getBinaryByURI(tcmUri);
                         cacheElement.setPayload(binary);
                         TCMURI binaryURI = new TCMURI(tcmUri);
-                        cacheProvider.storeInItemCache(tcmUri, cacheElement, binaryURI.getPublicationId(), binaryURI.getItemId());
+                        cacheProvider.storeInItemCache(tcmUri, cacheElement, binaryURI.getPublicationId(), binaryURI
+                                .getItemId());
+                        cacheElement.setExpired(false);
                         LOG.debug("Added binary with uri: {} to cache", tcmUri);
                     } catch (ParseException e) {
                         cacheElement.setPayload(null);
-                        cacheElement.setExpired(true);
                         cacheProvider.storeInItemCache(tcmUri, cacheElement);
+                        cacheElement.setExpired(true);
                         throw new ItemNotFoundException(e);
                     }
                 } else {
@@ -89,6 +83,10 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
         } else {
             LOG.debug("Return binary with uri: {} from cache", tcmUri);
             binary = cacheElement.getPayload();
+
+            if (binary == null) {
+                throw new ItemNotFoundException("Found nullreference for binary in cache.");
+            }
         }
 
         return binary;
@@ -105,7 +103,7 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
      * @throws org.dd4t.core.exceptions.FactoryException
      */
     @Override
-    public Binary getBinaryByURL (final String url, final int publicationId) throws FactoryException {
+    public Binary getBinaryByURL(final String url, final int publicationId) throws FactoryException {
         LOG.debug("Enter getBinaryByURL with url: {} and publicationId: {}", url, publicationId);
 
         String key = getCacheKey(url, publicationId);
@@ -116,13 +114,14 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
             //noinspection SynchronizationOnLocalVariableOrMethodParameter
             synchronized (cacheElement) {
                 if (cacheElement.isExpired()) {
-                    cacheElement.setExpired(false);
                     try {
                         binary = binaryProvider.getBinaryByURL(url, publicationId);
                         cacheElement.setPayload(binary);
 
                         TCMURI tcmUri = new TCMURI(binary.getId());
-                        cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
+                        cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId
+                                ());
+                        cacheElement.setExpired(false);
                         LOG.debug("Added binary with url: {} to cache", url);
                     } catch (ParseException e) {
                         throw new ItemNotFoundException(e);
@@ -141,15 +140,15 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
     }
 
     @Override
-    public void setCacheProvider (final PayloadCacheProvider cacheAgent) {
+    public void setCacheProvider(final PayloadCacheProvider cacheAgent) {
         cacheProvider = cacheAgent;
     }
 
-    public void setBinaryProvider (final BinaryProvider binaryProvider) {
+    public void setBinaryProvider(final BinaryProvider binaryProvider) {
         this.binaryProvider = binaryProvider;
     }
 
-    private String getCacheKey (String url, int publicationId) {
+    private String getCacheKey(String url, int publicationId) {
         return String.format("B-%s-%d", url, publicationId);
     }
 }

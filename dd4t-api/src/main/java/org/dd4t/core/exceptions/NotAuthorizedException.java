@@ -16,19 +16,19 @@
 
 package org.dd4t.core.exceptions;
 
-public class NotAuthorizedException extends Exception {
+public class NotAuthorizedException extends FactoryException {
 
     private static final long serialVersionUID = 7860070186906683875L;
 
-    public NotAuthorizedException (String message) {
+    public NotAuthorizedException(String message) {
         super(message);
     }
 
-    public NotAuthorizedException (Throwable t) {
+    public NotAuthorizedException(Throwable t) {
         super(t);
     }
 
-    public NotAuthorizedException (String message, Throwable t) {
+    public NotAuthorizedException(String message, Throwable t) {
         super(message, t);
     }
 }

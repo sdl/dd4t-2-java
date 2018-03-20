@@ -22,12 +22,12 @@ import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.ComponentTemplate;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.core.databind.BaseViewModel;
+import org.dd4t.core.databind.DataBinder;
 import org.dd4t.core.exceptions.FactoryException;
 import org.dd4t.core.exceptions.RenderException;
-import org.dd4t.core.factories.impl.ComponentPresentationFactoryImpl;
+import org.dd4t.core.factories.ComponentPresentationFactory;
 import org.dd4t.core.util.Constants;
 import org.dd4t.core.util.TCMURI;
-import org.dd4t.databind.DataBindFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class RenderUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(RenderUtils.class);
 
-    private RenderUtils () {
+    private RenderUtils() {
 
     }
 
@@ -59,10 +59,13 @@ public class RenderUtils {
      * If the component template has a template parameter viewName, the value of
      * that parameter is returned. Otherwise the title of the component template
      * is returned.
+     *
+     * @throws IOException
      */
-    public static String getViewName (final ComponentPresentation cp) {
+    public static String getViewName(final ComponentPresentation cp) throws IOException {
         ComponentTemplate componentTemplate = cp.getComponentTemplate();
-        String viewNameKey = DataBindFactory.findComponentTemplateViewName(componentTemplate);
+        DataBinder databinder = ApplicationContextProvider.getBean(DataBinder.class);
+        String viewNameKey = databinder.findComponentTemplateViewName(componentTemplate);
 
         if (StringUtils.isNotEmpty(viewNameKey)) {
             return viewNameKey;
@@ -76,8 +79,12 @@ public class RenderUtils {
      * by schemaName and templateName. To align with the .Net variant of DD4T
      * the schema and template matches uses the startsWith method and there also
      * is support for the negation of the expression.
+     *
+     * @throws IOException
      */
-    public static List<ComponentPresentation> filterComponentPresentations (final List<ComponentPresentation> componentPresentations, final String schemaName, final String rootElementName, final String viewName, final String region) {
+    public static List<ComponentPresentation> filterComponentPresentations(final List<ComponentPresentation>
+                                                                                   componentPresentations, final
+    String schemaName, final String rootElementName, final String viewName, final String region) throws IOException {
         boolean regionIsSet = false;
 
         if (region != null) {
@@ -90,7 +97,8 @@ public class RenderUtils {
 
         final List<ComponentPresentation> componentPresentationsToRender = new ArrayList<>();
 
-        if (StringUtils.isNotEmpty(schemaName) || StringUtils.isNotEmpty(rootElementName) || StringUtils.isNotEmpty(viewName)) {
+        if (StringUtils.isNotEmpty(schemaName) || StringUtils.isNotEmpty(rootElementName) || StringUtils.isNotEmpty
+                (viewName)) {
 
 
             for (ComponentPresentation cp : componentPresentations) {
@@ -98,9 +106,8 @@ public class RenderUtils {
                 String componentRootElement = cp.getComponent().getSchema().getRootElement();
                 String view = getViewName(cp);
 
-                if (match(componentSchema.toLowerCase(), schemaName) &&
-                        match(componentRootElement, rootElementName) &&
-                        match(view, viewName) && isComponentPresentationInRegion(region, regionIsSet, cp)) {
+                if (match(componentSchema.toLowerCase(), schemaName) && match(componentRootElement, rootElementName)
+                        && match(view, viewName) && isComponentPresentationInRegion(region, regionIsSet, cp)) {
                     componentPresentationsToRender.add(cp);
                 }
             }
@@ -115,7 +122,8 @@ public class RenderUtils {
         return componentPresentationsToRender;
     }
 
-    private static boolean isComponentPresentationInRegion (final String region, final boolean regionIsSet, final ComponentPresentation cp) {
+    private static boolean isComponentPresentationInRegion(final String region, final boolean regionIsSet, final
+    ComponentPresentation cp) {
         final Map<String, Field> metadata = cp.getComponentTemplate().getMetadata();
         final Field currentRegion = metadata != null ? metadata.get("region") : null;
         if (currentRegion != null && currentRegion.getValues() != null && !currentRegion.getValues().isEmpty()) {
@@ -144,7 +152,8 @@ public class RenderUtils {
                 return false;
             }
         } else {
-            LOG.debug("No Region set on CP: {} - {}", cp.getComponent() != null ? cp.getComponent().getId() : "null", cp.getComponentTemplate().getId());
+            LOG.debug("No Region set on CP: {} - {}", cp.getComponent() != null ? cp.getComponent().getId() : "null",
+                    cp.getComponentTemplate().getId());
             if (regionIsSet) {
                 LOG.debug("Not rendering this CP as a region is set on the Tag.");
                 return false;
@@ -155,7 +164,7 @@ public class RenderUtils {
         }
     }
 
-    private static boolean match (final String value, final String expressionParam) {
+    private static boolean match(final String value, final String expressionParam) {
         if (StringUtils.isEmpty(expressionParam)) {
             return true;
         }
@@ -208,7 +217,7 @@ public class RenderUtils {
      *
      * @param url , the original url
      */
-    public static String fixUrl (String url) {
+    public static String fixUrl(String url) {
         return url.replace(' ', '-').toLowerCase();
     }
 
@@ -219,8 +228,10 @@ public class RenderUtils {
      * @param response               , the http response
      * @param componentPresentations , the list with component presentations
      * @return as string with all component presentations rendered and concatenated.
+     * @throws IOException
      */
-    public static String renderComponentPresentations (final HttpServletRequest request, final HttpServletResponse response, final List<ComponentPresentation> componentPresentations) throws FactoryException {
+    public static String renderComponentPresentations(final HttpServletRequest request, final HttpServletResponse
+            response, final List<ComponentPresentation> componentPresentations) throws FactoryException, IOException {
         final StringBuilder output = new StringBuilder();
 
         if (componentPresentations == null) {
@@ -241,8 +252,10 @@ public class RenderUtils {
      * @param response the http response
      * @param cp       the component presentation
      * @return the rendered component presentation as a string.
+     * @throws IOException
      */
-    public static String renderComponentPresentation (final HttpServletRequest request, final HttpServletResponse response, final ComponentPresentation cp) throws FactoryException {
+    public static String renderComponentPresentation(final HttpServletRequest request, final HttpServletResponse
+            response, final ComponentPresentation cp) throws FactoryException, IOException {
         return getResponse(request, response, cp, getViewName(cp));
     }
 
@@ -255,8 +268,11 @@ public class RenderUtils {
      * @param templateURI  the Tcm Uri of the template
      * @param viewName     the view name
      */
-    public static String renderDynamicComponentPresentation (final HttpServletRequest request, final HttpServletResponse response, final String componentURI, final String templateURI, final String viewName) throws FactoryException {
-        final ComponentPresentation componentPresentation = ComponentPresentationFactoryImpl.getInstance().getComponentPresentation(componentURI, templateURI);
+    public static String renderDynamicComponentPresentation(final HttpServletRequest request, final
+    HttpServletResponse response, final String componentURI, final String templateURI, final String viewName) throws
+            FactoryException {
+        ComponentPresentationFactory cpf = ApplicationContextProvider.getBean(ComponentPresentationFactory.class);
+        final ComponentPresentation componentPresentation = cpf.getComponentPresentation(componentURI, templateURI);
         return getResponse(request, response, componentPresentation, viewName);
     }
 
@@ -264,19 +280,20 @@ public class RenderUtils {
      * Dispatch a url to a request dispatcher while buffering the output in a string
      * (and not directly to the response's writer).
      */
-    public static String dispatchBufferedRequest (final HttpServletRequest request, final HttpServletResponse response, final String url) throws ServletException, IOException {
+    public static String dispatchBufferedRequest(final HttpServletRequest request, final HttpServletResponse
+            response, final String url) throws ServletException, IOException {
         long time = System.currentTimeMillis();
         final RequestDispatcher dispatcher = request.getServletContext().getRequestDispatcher(url);
         final HttpServletResponse responseWrapper = new HttpServletResponseWrapper(response) {
             private CharArrayWriter output = new CharArrayWriter();
 
             @Override
-            public String toString () {
+            public String toString() {
                 return output.toString();
             }
 
             @Override
-            public PrintWriter getWriter () {
+            public PrintWriter getWriter() {
                 return new PrintWriter(output);
             }
         };
@@ -287,7 +304,8 @@ public class RenderUtils {
         return responseWrapper.toString();
     }
 
-    private static String getResponse (final HttpServletRequest request, final HttpServletResponse response, final ComponentPresentation cp, final String viewName) throws FactoryException {
+    private static String getResponse(final HttpServletRequest request, final HttpServletResponse response, final
+    ComponentPresentation cp, final String viewName) throws FactoryException {
         try {
             final TCMURI tcmuri = new TCMURI(cp.getComponent().getId());
             ComponentUtils.setComponentPresentation(request, cp);
@@ -305,29 +323,31 @@ public class RenderUtils {
         }
     }
 
-    public static void removeViewModelsFromRequest (final HttpServletRequest request) {
+    public static void removeViewModelsFromRequest(final HttpServletRequest request) {
         final ComponentPresentation componentPresentation = ComponentUtils.getComponentPresentation(request);
         if (componentPresentation != null && componentPresentation.getAllViewModels() != null) {
             LOG.debug("Removing STM entries");
-            for (final Map.Entry<String, BaseViewModel> modelEntry : componentPresentation.getAllViewModels().entrySet()) {
+            for (final Map.Entry<String, BaseViewModel> modelEntry : componentPresentation.getAllViewModels()
+                    .entrySet()) {
                 request.removeAttribute(modelEntry.getKey());
             }
         }
     }
 
-    public static void setViewModelsOnRequest (final HttpServletRequest request, final ComponentPresentation cp) {
+    public static void setViewModelsOnRequest(final HttpServletRequest request, final ComponentPresentation cp) {
         final Map<String, BaseViewModel> viewModels = cp.getAllViewModels();
         if (!viewModels.isEmpty()) {
             // Push all STMs on the request stack, so
             // that views can choose which ones to use
             for (final Map.Entry<String, BaseViewModel> modelEntry : viewModels.entrySet()) {
-                LOG.debug("Adding model with key: {} and type {} to the request stack", modelEntry.getKey(), modelEntry.getValue());
+                LOG.debug("Adding model with key: {} and type {} to the request stack", modelEntry.getKey(),
+                        modelEntry.getValue());
                 request.setAttribute(modelEntry.getKey(), modelEntry.getValue());
             }
         }
     }
 
-    public static void setDynamicComponentOnRequest (final HttpServletRequest request, final Component component) {
+    public static void setDynamicComponentOnRequest(final HttpServletRequest request, final Component component) {
         request.setAttribute(Constants.COMPONENT_NAME, component);
     }
 }

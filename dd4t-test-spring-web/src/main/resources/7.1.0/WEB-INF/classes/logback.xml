@@ -3,7 +3,7 @@
     <!-- Properties -->
     <property name="log.pattern" value="%date %-5level %logger{0} - %message%n"/>
     <property name="log.history" value="1"/>
-    <property name="log.folder" value="/var/log/dd4t"/>
+    <property name="log.folder" value="${user.home}/logs/dd4t"/>
     <property name="log.level" value="DEBUG"/>
 
     <!-- Appenders -->
@@ -108,8 +108,8 @@
         <appender-ref ref="stdout"/>
     </logger>
     <logger name="org.apache.activemq" level="TRACE" additivity="false">
-        <appender-ref ref="stdout" />
-        <appender-ref ref="rollingJMSLog" />
+        <appender-ref ref="stdout"/>
+        <appender-ref ref="rollingJMSLog"/>
     </logger>
     <root level="${log.level}">
         <appender-ref ref="rollingCoreLog"/>

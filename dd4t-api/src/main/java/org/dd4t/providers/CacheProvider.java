@@ -16,10 +16,13 @@
 
 package org.dd4t.providers;
 
+import org.dd4t.caching.Cachable;
+import org.dd4t.caching.CacheDependency;
+
 import java.util.Collection;
+import java.util.List;
 
-import org.dd4t.core.caching.Cachable;
-
+@Deprecated
 public interface CacheProvider {
     /**
      * Loads given object from the cache
@@ -27,25 +30,35 @@ public interface CacheProvider {
      * @param key
      * @return
      */
-    Object loadFromLocalCache (String key);
+    Object loadFromLocalCache(String key);
 
     /**
      * Store given item in the cache with a reference to given collection of also cached items
      */
-    void storeInCache (String key, Cachable ob, Collection<Cachable> deps);
+    void storeInCache(String key, Cachable ob, Collection<Cachable> deps);
 
     /**
      * Store given item in the cache with a reference to supplied Tridion Item.
      */
-    void storeInItemCache (String key, Object ob, int dependingPublicationId, int dependingItemId);
+    void storeInItemCache(String key, Object ob, int dependingPublicationId, int dependingItemId);
 
     /**
      * Store given item in the cache with a reference to supplied Tridion Component Presentation.
      */
-    void storeInComponentPresentationCache (String key, Object ob, int dependingPublicationId, int dependingCompId, int dependingTemplateId);
+    void storeInComponentPresentationCache(String key, Object ob, int dependingPublicationId, int dependingCompId,
+                                           int dependingTemplateId);
 
     /**
      * Store given item in the cache with a reference to supplied Tridion Keyword.
      */
-    void storeInKeywordCache (String key, Object ob, int dependingPublicationId, int dependingItemId);
+    void storeInKeywordCache(String key, Object ob, int dependingPublicationId, int dependingItemId);
+
+    /**
+     * Stores given item in the cache with a dependency to all given dependencies.
+     *
+     * @param key
+     * @param ob
+     * @param dependencies
+     */
+    public void storeInItemCache(String key, Object ob, List<CacheDependency> dependencies);
 }

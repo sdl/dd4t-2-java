@@ -20,11 +20,13 @@ import org.dd4t.contentmodel.ComponentPresentation;
 import org.dd4t.contentmodel.Item;
 import org.dd4t.contentmodel.Page;
 import org.dd4t.core.exceptions.FactoryException;
-import org.dd4t.core.factories.impl.ComponentPresentationFactoryImpl;
+import org.dd4t.core.factories.ComponentPresentationFactory;
 import org.dd4t.core.processors.Processor;
 import org.dd4t.core.request.RequestContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
 
 /**
  * Pagefactory processor intended to resolve DCP's on pages at the factory level. It checks the page
@@ -37,8 +39,11 @@ public class DcpResolver extends BaseProcessor implements Processor {
 
     private static final Logger LOG = LoggerFactory.getLogger(DcpResolver.class);
 
+    @Resource
+    protected ComponentPresentationFactory componentPresentationFactory;
+
     @Override
-    public void execute (Item item, RequestContext context) {
+    public void execute(Item item, RequestContext context) {
         LOG.debug("Processing item: {} ", item);
         if (item instanceof Page) {
             final Page page = (Page) item;
@@ -50,7 +55,8 @@ public class DcpResolver extends BaseProcessor implements Processor {
                     LOG.debug("Detected dynamic component presentation " + cp);
 
                     try {
-                        final ComponentPresentation componentPresentation = ComponentPresentationFactoryImpl.getInstance().getComponentPresentation(cp.getComponent().getId(), cp.getComponentTemplate().getId());
+                        final ComponentPresentation componentPresentation = componentPresentationFactory
+                                .getComponentPresentation(cp.getComponent().getId(), cp.getComponentTemplate().getId());
                         cp.setComponent(componentPresentation.getComponent());
                         cp.setViewModel(componentPresentation.getAllViewModels());
                     } catch (FactoryException e) {
@@ -59,5 +65,13 @@ public class DcpResolver extends BaseProcessor implements Processor {
                 }
             }
         }
+    }
+
+    public ComponentPresentationFactory getComponentPresentationFactory() {
+        return componentPresentationFactory;
+    }
+
+    public void setComponentPresentationFactory(ComponentPresentationFactory componentPresentationFactory) {
+        this.componentPresentationFactory = componentPresentationFactory;
     }
 }

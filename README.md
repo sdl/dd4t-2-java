@@ -1,9 +1,12 @@
 dd4t-2-java
 ======
 
- - Current stable version: **2.0.4**
+ - Current stable version: **2.1.0**
  - Maven Central: [org.dd4t](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22org.dd4t%22)
- - Current stable archetype version: [1.5](http://search.maven.org/#artifactdetails%7Corg.dd4t%7Cdd4t-spring-mvc-archetype%7C1.4%7Cmaven-archetype)
+ - Current stable archetype version:
+ 
+ Web 8: [1.1](http://search.maven.org/#artifactdetails%7Corg.dd4t%7Cdd4t-web8-archetype%7C1.4%7Cmaven-archetype)
+ Tridion 20XX: [1.6](http://search.maven.org/#artifactdetails%7Corg.dd4t%7Cdd4t-spring-mvc-archetype%7C1.4%7Cmaven-archetype)
 
 ##Prerequisites and Java dependencies
 
@@ -137,7 +140,7 @@ To create a complete, but minimal Spring MVC web application to develop with, cr
 1. Create an empty directory where you want to develop the web application in
 2. Execute the following command after replacing the parameters in between the brackets ([com.example] and [mywebapp]):
 
-		mvn archetype:generate -DgroupId=[com.example] -DartifactId=[mywebapp] -DarchetypeGroupId=org.dd4t -DarchetypeArtifactId=dd4t-spring-mvc-archetype -DarchetypeVersion=1.5  -DarchetypeCatalog=remote -DarchetypeCatalog=http://repo1.maven.org/maven2
+		mvn archetype:generate -DgroupId=[com.example] -DartifactId=[mywebapp] -DarchetypeGroupId=org.dd4t -DarchetypeArtifactId=dd4t-spring-mvc-archetype -DarchetypeVersion=1.5  -DarchetypeCatalog=remote
 
 3. Enter the requested information. Maven will ask you to specify a version (defaults to 1.0-SNAPSHOT) and will then ask you to confirm the settings.
 
