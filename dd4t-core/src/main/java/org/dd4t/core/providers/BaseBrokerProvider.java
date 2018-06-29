@@ -146,6 +146,19 @@ public abstract class BaseBrokerProvider {
 		return String.format("%s-%s", type, url);
 	}
 
+	/**
+	 * Builds a key using a named cache type (region), publication id and a URL. This type of key is used to point to
+	 * actual payload in the cache. Use this key when looking up objects cached for a particular URL.
+	 *
+	 * @param type CacheType representing the type (or region) where the associated item is in cache
+	 * @param pubId  Id of the publication
+	 * @param url  the path part of the URL of a Tridion item
+	 * @return String representing the key pointing to a URL value
+	 */
+	protected String getKey(CacheType type, int pubId, String url) {
+		return String.format("%s-%s-%s", type, pubId, url);
+	}
+
 
 	public void setCacheProvider (final PayloadCacheProvider cacheProvider) {
 		this.cacheProvider = cacheProvider;
