@@ -175,7 +175,7 @@ public class BrokerPageProvider extends BaseBrokerProvider implements PageProvid
 
 		LOG.debug("Checking whether Page with url: {} exists", url);
 
-		String key = getKey(CacheType.PAGE_EXISTS, url);
+		String key = getKey(CacheType.PAGE_EXISTS, publicationId, url);
 		CacheElement<Integer> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
 		Integer result;
 
@@ -209,7 +209,7 @@ public class BrokerPageProvider extends BaseBrokerProvider implements PageProvid
 	}
 
 	private TCMURI loadTcmuriByUrlAndPubId(final String url, final int publicationId) {
-		String key = getKey(CacheType.PAGE_TCMURI, url);
+		String key = getKey(CacheType.PAGE_TCMURI, publicationId, url);
 		CacheElement<TCMURI> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
 		TCMURI tcmuri = null;
 		if (cacheElement.isExpired()) {
