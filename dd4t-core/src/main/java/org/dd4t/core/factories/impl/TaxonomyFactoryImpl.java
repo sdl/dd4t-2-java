@@ -48,7 +48,6 @@ public class TaxonomyFactoryImpl extends BaseFactory implements TaxonomyFactory 
     private PayloadCacheProvider cacheProvider;
 
     private TaxonomyFactoryImpl() {
-        LOG.debug("Create new instance");
     }
 
     public static TaxonomyFactoryImpl getInstance() {
@@ -69,39 +68,33 @@ public class TaxonomyFactoryImpl extends BaseFactory implements TaxonomyFactory 
 
         CacheElement<Keyword> cacheElement = cacheProvider.loadPayloadFromLocalCache(taxonomyURI);
         Keyword taxonomy;
-
-        if (cacheElement.isExpired()) {
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
-                    cacheElement.setExpired(false);
-                    try {
-                        String taxonomySource = taxonomyProvider.getTaxonomyByURI(taxonomyURI, true);
-                        if (taxonomySource == null || taxonomySource.length() == 0) {
-                            cacheElement.setPayload(null);
-                            cacheProvider.storeInItemCache(taxonomyURI, cacheElement);
-                            throw new ItemNotFoundException(String.format("Taxonomy with uri: %s not found.", taxonomyURI));
-                        }
-
-                        taxonomy = deserialize(taxonomySource, KeywordImpl.class);
-                        cacheElement.setPayload(taxonomy);
-
-                        TCMURI tcmUri = new TCMURI(taxonomyURI);
-                        cacheProvider.storeInItemCache(taxonomyURI, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
-                        LOG.debug("Added taxonomy with uri: {} to cache", taxonomyURI);
-                    } catch (ItemNotFoundException | ParseException | SerializationException e) {
-                        LOG.error("Failed to read taxonomy {} from provider", taxonomyURI, e);
-                        throw new IOException(e);
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
+                cacheElement.setExpired(false);
+                try {
+                    String taxonomySource = taxonomyProvider.getTaxonomyByURI(taxonomyURI, true);
+                    if (taxonomySource == null || taxonomySource.length() == 0) {
+                        cacheElement.setPayload(null);
+                        cacheProvider.storeInItemCache(taxonomyURI, cacheElement);
+                        throw new ItemNotFoundException(String.format("Taxonomy with uri: %s not found.", taxonomyURI));
                     }
-                } else {
-                    LOG.debug("Return taxonomy with uri: {} from cache", taxonomyURI);
-                    taxonomy = cacheElement.getPayload();
-                }
-            }
-        } else {
-            LOG.debug("Return taxonomy with uri: {} from cache", taxonomyURI);
-            taxonomy = cacheElement.getPayload();
-        }
 
+                    taxonomy = deserialize(taxonomySource, KeywordImpl.class);
+                    cacheElement.setPayload(taxonomy);
+
+                    TCMURI tcmUri = new TCMURI(taxonomyURI);
+                    cacheProvider.storeInItemCache(taxonomyURI, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
+                    LOG.debug("Added taxonomy with uri: {} to cache", taxonomyURI);
+                } catch (Exception e) {
+                    String message = "Failed to read taxonomy " + taxonomyURI + " from provider";
+                    LOG.error(message, e);
+                    throw new IOException(message, e);
+                }
+            } else {
+                LOG.debug("Return taxonomy with uri: {} from cache", taxonomyURI);
+                taxonomy = cacheElement.getPayload();
+            }
+        }
         if (taxonomy == null) {
             throw new IOException("Failed to read taxonomy " + taxonomyURI + " from provider");
         }
@@ -131,42 +124,38 @@ public class TaxonomyFactoryImpl extends BaseFactory implements TaxonomyFactory 
         String key = taxonomyURI + schemaURI;
         CacheElement<Keyword> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
         Keyword taxonomy;
-
-        if (cacheElement.isExpired()) {
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
-                    cacheElement.setExpired(false);
-                    try {
-                        String taxonomySource = taxonomyProvider.getTaxonomyFilterBySchema(taxonomyURI, schemaURI);
-                        if (taxonomySource == null || taxonomySource.length() == 0) {
-                            cacheElement.setPayload(null);
-                            cacheProvider.storeInItemCache(taxonomyURI, cacheElement);
-                            throw new ItemNotFoundException("Taxonomy with uri: " + taxonomyURI + " not found.");
-                        }
-
-                        taxonomy = deserialize(taxonomySource, KeywordImpl.class);
-                        cacheElement.setPayload(taxonomy);
-
-                        TCMURI tcmUri = new TCMURI(taxonomyURI);
-                        cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
-                        LOG.debug("Added taxonomy with uri: {} and schema: {} to cache", taxonomyURI, schemaURI);
-                    } catch (ItemNotFoundException e) {
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
+                cacheElement.setExpired(false);
+                try {
+                    String taxonomySource = taxonomyProvider.getTaxonomyFilterBySchema(taxonomyURI, schemaURI);
+                    if (taxonomySource == null || taxonomySource.length() == 0) {
                         cacheElement.setPayload(null);
                         cacheProvider.storeInItemCache(taxonomyURI, cacheElement);
-                        throw new IOException("Taxonomy with uri: " + taxonomyURI + " not found.");
-                    } catch (ParseException | SerializationException e) {
-                        LOG.error("Failed to read taxonomy " + taxonomyURI + " from provider", e);
-                        throw new IOException(e);
+                        throw new ItemNotFoundException("Taxonomy with uri: " + taxonomyURI + " not found.");
                     }
-                } else {
-                    LOG.debug("Return taxonomy with uri: {} and schema: {} from cache", taxonomyURI, schemaURI);
-                    taxonomy = cacheElement.getPayload();
+
+                    taxonomy = deserialize(taxonomySource, KeywordImpl.class);
+                    cacheElement.setPayload(taxonomy);
+
+                    TCMURI tcmUri = new TCMURI(taxonomyURI);
+                    cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
+                    LOG.debug("Added taxonomy with uri: {} and schema: {} to cache", taxonomyURI, schemaURI);
+                } catch (ItemNotFoundException e) {
+                    cacheElement.setPayload(null);
+                    cacheProvider.storeInItemCache(taxonomyURI, cacheElement);
+                    throw new IOException("Taxonomy with uri: " + taxonomyURI + " not found.");
+                } catch (Exception e) {
+                    String message = "Failed to read taxonomy " + taxonomyURI + " from provider";
+                    LOG.error(message, e);
+                    throw new IOException(message, e);
                 }
+            } else {
+                LOG.debug("Return taxonomy with uri: {} and schema: {} from cache", taxonomyURI, schemaURI);
+                taxonomy = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Return taxonomy with uri: {} and schema: {} from cache", taxonomyURI, schemaURI);
-            taxonomy = cacheElement.getPayload();
         }
+
 
         if (taxonomy == null) {
             throw new IOException("Failed to read taxonomy " + taxonomyURI + " from provider");

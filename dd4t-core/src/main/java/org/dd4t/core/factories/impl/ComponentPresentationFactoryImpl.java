@@ -40,7 +40,6 @@ public class ComponentPresentationFactoryImpl extends BaseFactory implements Com
 	protected ComponentPresentationProvider componentPresentationProvider;
 
 	protected ComponentPresentationFactoryImpl () {
-		LOG.debug("Create new instance");
 	}
 
 	public static ComponentPresentationFactoryImpl getInstance () {
@@ -78,7 +77,8 @@ public class ComponentPresentationFactoryImpl extends BaseFactory implements Com
 			componentTcmUri = new TCMURI(componentURI);
 			templateTcmUri = new TCMURI(templateURI);
 		} catch (ParseException e) {
-			throw new ItemNotFoundException(e);
+			throw new ItemNotFoundException("Either componentURI: '" + componentURI +
+					"' or templateURI: '" + templateURI + "' invalid", e);
 		}
 		componentURI = componentTcmUri.toString();
 		int publicationId = componentTcmUri.getPublicationId();
@@ -89,45 +89,40 @@ public class ComponentPresentationFactoryImpl extends BaseFactory implements Com
 		CacheElement<ComponentPresentation> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
 
 		ComponentPresentation componentPresentation;
+		synchronized (cacheElement) {
+			if (cacheElement.isExpired()) {
+				cacheElement.setExpired(false);
+				componentPresentation = componentPresentationProvider.getDynamicComponentPresentation(componentId, templateId, publicationId);
 
-		if (cacheElement.isExpired()) {
-			synchronized (cacheElement) {
-				if (cacheElement.isExpired()) {
-					cacheElement.setExpired(false);
-					componentPresentation = componentPresentationProvider.getDynamicComponentPresentation(componentId, templateId, publicationId);
-
-					if (componentPresentation == null) {
-
-						cacheElement.setPayload(null);
-						cacheProvider.storeInItemCache(key, cacheElement);
-						throw new ItemNotFoundException(String.format("Could not find DCP with componentURI: %s and templateURI: %s", componentURI, templateURI));
-					}
-
-					// Building STMs here.
-					componentPresentation = DataBindFactory.buildDynamicComponentPresentation(componentPresentation, ComponentImpl.class);
-
-					LOG.debug("Running pre caching processors");
-					this.executeProcessors(componentPresentation.getComponent(), RunPhase.BEFORE_CACHING, getRequestContext());
-					cacheElement.setPayload(componentPresentation);
-					cacheProvider.storeInItemCache(key, cacheElement, publicationId, componentId);
-					LOG.debug("Added component with uri: {} and template: {} to cache", componentURI, templateURI);
-
-				} else {
-					LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", componentURI, templateURI);
-					componentPresentation = cacheElement.getPayload();
+				if (componentPresentation == null) {
+					cacheElement.setPayload(null);
+					cacheProvider.storeInItemCache(key, cacheElement);
+					throw new ItemNotFoundException(String.format("Could not find DCP with " +
+							"componentURI: %s and templateURI: %s", componentURI, templateURI));
 				}
+
+				// Building STMs here.
+				componentPresentation = DataBindFactory.buildDynamicComponentPresentation(componentPresentation, ComponentImpl.class);
+
+				LOG.trace("Running pre-caching processors");
+				this.executeProcessors(componentPresentation.getComponent(), RunPhase.BEFORE_CACHING, getRequestContext());
+				cacheElement.setPayload(componentPresentation);
+				cacheProvider.storeInItemCache(key, cacheElement, publicationId, componentId);
+				LOG.debug("Added component with uri: {} and template: {} to cache", componentURI, templateURI);
+
+			} else {
+				LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", componentURI, templateURI);
+				componentPresentation = cacheElement.getPayload();
 			}
-		} else {
-			LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", componentURI, templateURI);
-			componentPresentation = cacheElement.getPayload();
 		}
 
+
 		if (componentPresentation != null) {
-			LOG.debug("Running Post caching Processors");
+			LOG.trace("Running post-caching processors");
 			try {
 				this.executeProcessors(componentPresentation.getComponent(), RunPhase.AFTER_CACHING,getRequestContext());
 			} catch (ProcessorException e) {
-				LOG.error(e.getLocalizedMessage(), e);
+				LOG.error("Could not perform post-caching processor for " + componentPresentation.getComponent(), e);
 			}
 		}
 

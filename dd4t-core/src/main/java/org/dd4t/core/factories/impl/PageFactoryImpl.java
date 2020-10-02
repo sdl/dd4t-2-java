@@ -42,7 +42,6 @@ public class PageFactoryImpl extends BaseFactory implements PageFactory {
 	private static final PageFactoryImpl INSTANCE = new PageFactoryImpl();
 
 	protected PageFactoryImpl () {
-		LOG.debug("Create new instance");
 	}
 
 	public static PageFactoryImpl getInstance () {
@@ -58,56 +57,52 @@ public class PageFactoryImpl extends BaseFactory implements PageFactory {
 	 * @throws org.dd4t.core.exceptions.FactoryException
 	 */
 	@Override
-	public Page getPage (String uri) throws FactoryException {
+	public Page getPage(String uri) throws FactoryException {
 		LOG.debug("Enter getPage with uri: {}", uri);
 
 		CacheElement<Page> cacheElement = cacheProvider.loadPayloadFromLocalCache(uri);
 		Page page;
-
-		if (cacheElement.isExpired()) {
-			synchronized (cacheElement) {
-				if (cacheElement.isExpired()) {
-					cacheElement.setExpired(false);
-					String pageSource;
-					try {
-						pageSource = pageProvider.getPageContentById(uri);
-					} catch (ParseException e) {
-						LOG.error(e.getLocalizedMessage(), e);
-						throw new SerializationException(e);
-					}
-
-					if (StringUtils.isEmpty(pageSource)) {
-						cacheElement.setPayload(null);
-						cacheProvider.storeInItemCache(uri, cacheElement);
-						throw new ItemNotFoundException("Unable to find page by id " + uri);
-					}
-
-					try {
-						page = deserialize(pageSource, PageImpl.class);
-						LOG.debug("Running pre caching processors");
-						this.executeProcessors(page, RunPhase.BEFORE_CACHING, getRequestContext());
-						cacheElement.setPayload(page);
-						final TCMURI tcmUri = new TCMURI(uri);
-						cacheProvider.storeInItemCache(uri, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
-						LOG.debug("Added page with uri: {} to cache", uri);
-					} catch (ParseException e) {
-						throw new SerializationException(e);
-					}
-				} else {
-					LOG.debug("Return a page with uri: {} from cache", uri);
-					page = cacheElement.getPayload();
+		synchronized (cacheElement) {
+			if (cacheElement.isExpired()) {
+				cacheElement.setExpired(false);
+				String pageSource;
+				try {
+					pageSource = pageProvider.getPageContentById(uri);
+				} catch (ParseException e) {
+					String message = "Could not parse binary uri: " + uri;
+					LOG.error(message, e);
+					throw new SerializationException(message, e);
 				}
+
+				if (StringUtils.isEmpty(pageSource)) {
+					cacheElement.setPayload(null);
+					cacheProvider.storeInItemCache(uri, cacheElement);
+					throw new ItemNotFoundException("Unable to find page by uri: " + uri);
+				}
+
+				try {
+					page = deserialize(pageSource, PageImpl.class);
+					LOG.debug("Running pre-caching processors");
+					this.executeProcessors(page, RunPhase.BEFORE_CACHING, getRequestContext());
+					cacheElement.setPayload(page);
+					final TCMURI tcmUri = new TCMURI(uri);
+					cacheProvider.storeInItemCache(uri, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
+					LOG.debug("Added page with uri: {} to cache", uri);
+				} catch (ParseException e) {
+					throw new SerializationException(e);
+				}
+			} else {
+				LOG.debug("Return a page with uri: {} from cache", uri);
+				page = cacheElement.getPayload();
 			}
-		} else {
-			LOG.debug("Return page with uri: {} from cache", uri);
-			page = cacheElement.getPayload();
 		}
+
 		if (page != null) {
-			LOG.debug("Running Post caching Processors");
+			LOG.debug("Running post-caching processors");
 			try {
 				this.executeProcessors(page, RunPhase.AFTER_CACHING, getRequestContext());
 			} catch (ProcessorException e) {
-				LOG.error(e.getLocalizedMessage(), e);
+				LOG.error("Could not perform post-caching processors for " + page, e);
 			}
 		}
 		return page;
