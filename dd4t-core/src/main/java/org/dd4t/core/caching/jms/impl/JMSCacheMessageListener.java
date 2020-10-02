@@ -49,14 +49,14 @@ public class JMSCacheMessageListener implements MessageListener {
         if (event != null) {
             switch (event.getType()) {
                 case CacheEvent.INVALIDATE:
-                    LOG.debug("Invalidate " + event);
+                    LOG.trace("Invalidate " + event);
                     Serializable key = event.getKey();
                     cacheInvalidator.invalidate(key.toString());
                     monitor.setMQServerStatusUp();
                     break;
 
                 case CacheEvent.FLUSH:
-                    LOG.debug("Flush " + event);
+                    LOG.trace("Flush " + event);
                     monitor.setMQServerStatusUp();
                     break;
                 default:
@@ -75,10 +75,12 @@ public class JMSCacheMessageListener implements MessageListener {
                 if (serializable instanceof CacheEvent) {
                     event = (CacheEvent) serializable;
                 } else {
-                    LOG.error("JMS message is not a com.tridion.cache.CacheEvent");
+                    LOG.error("JMS message is not a com.tridion.cache.CacheEvent, " +
+                            "but " + serializable.getClass().getCanonicalName());
                 }
             } else {
-                LOG.error("Unknown message type received: " + message.getClass().getName());
+                LOG.error("Unknown message type received: " + message.getClass().getName() +
+                        ", expected javax.jms.ObjectMessage");
             }
         } catch (JMSException jmse) {
             LOG.error("Cannot read JMS message", jmse);

@@ -46,11 +46,13 @@ public class UrlPublicationResolver implements PublicationResolver {
 	 * @return int representing the SDL Tridion Publication item id
 	 */
 	@Override public int getPublicationId () {
+		String fullUrl = "";
 		try {
 			final HttpServletRequest request = HttpUtils.getCurrentRequest();
-			return publicationProvider.discoverPublicationId(HttpUtils.getOriginalFullUrl(request));
+			fullUrl = HttpUtils.getOriginalFullUrl(request);
+			return publicationProvider.discoverPublicationId(fullUrl);
 		} catch (SerializationException e) {
-			LOG.error(e.getLocalizedMessage(),e);
+			LOG.error("Could not detect publication id from url: " + fullUrl, e);
 		}
 		return -1;
 	}

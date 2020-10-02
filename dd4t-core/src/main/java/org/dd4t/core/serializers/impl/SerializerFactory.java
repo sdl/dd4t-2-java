@@ -41,12 +41,12 @@ public class SerializerFactory {
 	private static final SerializerFactory INSTANCE = new SerializerFactory();
 
 	@Autowired
-	private Serializer serializer = null;
+	private volatile Serializer serializer = null;
 
 	private SerializerFactory () {
-		LOG.debug("Init SerializerFactory.");
 	}
 
+	@Deprecated
 	public SerializerFactory (final JSONSerializer serializerInstance) {
 	}
 
@@ -62,7 +62,6 @@ public class SerializerFactory {
 			INSTANCE.serializer = serializer;
 		}
 	}
-
 
 	public static SerializerFactory getInstance () {
 		return INSTANCE;

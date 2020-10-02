@@ -30,6 +30,7 @@ public class JMSCacheMonitor {
 
     private static final Logger LOG = LoggerFactory.getLogger(JMSCacheMonitor.class);
     private int monitorServiceInterval = 30000; // milliseconds
+    private volatile boolean running = true;
 
 	@Autowired
     private CacheInvalidator cacheInvalidator;
@@ -42,7 +43,7 @@ public class JMSCacheMonitor {
 
             MQServerStatus previousServerStatus = MQServerStatus.UP;
             try {
-                while (true) {
+                while (running) {
                     LOG.debug("JMS MQ server is {} ", serverStatus);
 
                     if (cacheInvalidator != null) {
@@ -58,7 +59,8 @@ public class JMSCacheMonitor {
                     Thread.sleep(monitorServiceInterval);
                 }
             } catch (InterruptedException e) {
-                LOG.debug("Cache monitor thread interrupted");
+                LOG.error("Cache monitor thread interrupted");
+                Thread.currentThread().interrupt();
             }
         }
     };
@@ -67,9 +69,7 @@ public class JMSCacheMonitor {
 
     @PostConstruct
     public void init(){
-        LOG.debug("Create new instance");
-
-        LOG.debug("Using Monitor interval (or cache refresh time when JMS is down) = {} seconds", monitorServiceInterval, monitorServiceInterval / 1000);
+        LOG.debug("Using Monitor interval (or cache refresh time when JMS is down) = {} seconds", monitorServiceInterval / 1000);
         thread = new Thread(monitor);
         thread.setName("Dd4tWebAppJMSMonitorThread");
         
@@ -104,7 +104,7 @@ public class JMSCacheMonitor {
 
     public void shutdown() throws InterruptedException {
         LOG.debug("Stopping thread monitor");
-
+        running = false;
         thread.interrupt();
         thread.join();
 

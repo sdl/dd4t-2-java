@@ -50,7 +50,8 @@ public class JSONSerializer implements Serializer {
         try {
             return MAPPER.readValue(content, aClass);
         } catch (IOException e) {
-            LOG.error("Error deserializing.", e);
+            LOG.error("Error deserialize", e);
+            LOG.trace("Error deserialize: " + content, e);
             throw new SerializationException(e);
         }
     }
