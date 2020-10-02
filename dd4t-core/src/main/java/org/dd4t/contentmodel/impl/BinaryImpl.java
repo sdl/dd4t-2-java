@@ -16,9 +16,11 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.Binary;
 import org.dd4t.contentmodel.BinaryData;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BinaryImpl extends BaseRepositoryLocalItem implements Binary {
 
 	private BinaryData binaryData;
@@ -47,5 +49,14 @@ public class BinaryImpl extends BaseRepositoryLocalItem implements Binary {
 
 	@Override public String getUrlPath () {
 		return this.urlPath;
+	}
+
+	@Override
+	public String toString() {
+		return "BinaryImpl{" +
+				"binaryData=" + binaryData +
+				", mimeType='" + mimeType + '\'' +
+				", urlPath='" + urlPath + '\'' +
+				'}';
 	}
 }

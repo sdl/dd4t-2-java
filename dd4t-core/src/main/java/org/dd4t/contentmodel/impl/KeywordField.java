@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldType;
@@ -24,6 +25,7 @@ import org.dd4t.contentmodel.Keyword;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class KeywordField extends BaseField implements Field {
 
     @JsonProperty("CategoryName")
@@ -40,11 +42,7 @@ public class KeywordField extends BaseField implements Field {
     public List<Object> getValues() {
         List<Keyword> keywordValues = getKeywordValues();
         List<Object> l = new LinkedList<>();
-
-        for (Keyword k : keywordValues) {
-            l.add(k);
-        }
-
+        l.addAll(keywordValues);
         return l;
     }
 

@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.ComponentPresentation;
@@ -30,6 +31,7 @@ import java.util.List;
 /**
  * TODO: Region support. Or are we just sticking the region on the CP?
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PageImpl extends BasePage implements GenericPage, HasMetadata {
 
     @JsonProperty("Filename")
@@ -107,5 +109,15 @@ public class PageImpl extends BasePage implements GenericPage, HasMetadata {
 
     public void setStructureGroup(StructureGroup structureGroup) {
         this.structureGroup = structureGroup;
+    }
+
+    @Override
+    public String toString() {
+        return "PageImpl{" +
+                "fileName='" + fileName + '\'' +
+                ", pageTemplate=" + pageTemplate +
+                ", componentPresentations=" + componentPresentations +
+                ", structureGroup=" + structureGroup +
+                '}';
     }
 }

@@ -103,6 +103,6 @@ public class PublicationDescriptorImpl implements PublicationDescriptor {
 	}
 
 	public String toString() {
-		return "[Id: " + this.id + ", Key: " + this.key + ", Title: " + this.title + "MM Path: " + this.multimediaPath + "MM URL: " + this.multimediaUrl + "Publication URL: " + this.publicationUrl + "Publication Path" + this.publicationPath + "]";
+		return "[Id: " + this.id + ", Key: " + this.key + ", Title: " + this.title + "MM Path: " + this.multimediaPath + "MM URL: " + this.multimediaUrl + "Publication URL: " + this.publicationUrl + "Publication Path: " + this.publicationPath + "]";
 	}
 }

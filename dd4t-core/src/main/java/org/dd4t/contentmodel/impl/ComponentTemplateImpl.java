@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.ComponentTemplate;
@@ -23,6 +24,7 @@ import org.dd4t.contentmodel.Field;
 
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComponentTemplateImpl extends BaseRepositoryLocalItem implements ComponentTemplate {
 
     @JsonProperty("OutputFormat")
@@ -57,5 +59,13 @@ public class ComponentTemplateImpl extends BaseRepositoryLocalItem implements Co
      */
     public void setOutputFormat(String outputFormat) {
         this.outputFormat = outputFormat;
+    }
+
+    @Override
+    public String toString() {
+        return "ComponentTemplateImpl{" +
+                "outputFormat='" + outputFormat + '\'' +
+                ", metadata=" + metadata +
+                '}';
     }
 }

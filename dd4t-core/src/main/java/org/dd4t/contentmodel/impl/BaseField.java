@@ -25,7 +25,6 @@ import org.dd4t.core.serializers.impl.json.FieldTypeConverter;
 import java.util.LinkedList;
 import java.util.List;
 
-
 @JsonIgnoreProperties(value = {"Value"}, ignoreUnknown = true)
 public abstract class BaseField implements Field {
 

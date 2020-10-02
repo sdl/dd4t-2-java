@@ -94,9 +94,9 @@ public class TridionFieldTypeIdResolver extends TypeIdResolverBase {
 
 		try {
 			LOG.trace("Loading a '{}'", clazzName);
-			clazz = ClassUtil.findClass(clazzName);
+			clazz = Class.forName(clazzName);
 		} catch (ClassNotFoundException e) {
-			LOG.error("Could not find the class!", e);
+			LOG.error("Could not find the class: {}", clazzName, e);
 			throw new IllegalStateException("Cannot find class '" + clazzName + "'");
 		}
 

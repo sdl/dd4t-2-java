@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.*;
@@ -23,6 +24,7 @@ import org.dd4t.contentmodel.*;
 import java.util.HashMap;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComponentImpl extends BaseComponent implements GenericComponent, HasContent, HasMetadata, HasMultimedia {
 
 	@JsonProperty("ComponentType") @JsonDeserialize(as = ComponentImpl.ComponentType.class)
@@ -99,5 +101,15 @@ public class ComponentImpl extends BaseComponent implements GenericComponent, Ha
 
     public void setEclId(String eclId) {
         this.eclId = eclId;
+    }
+
+    @Override
+    public String toString() {
+        return "ComponentImpl{" +
+                "componentType=" + componentType +
+                ", content=" + content +
+                ", multimedia=" + multimedia +
+                ", eclId='" + eclId + '\'' +
+                '}';
     }
 }

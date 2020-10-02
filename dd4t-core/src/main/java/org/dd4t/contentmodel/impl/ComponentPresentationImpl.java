@@ -17,6 +17,7 @@
 package org.dd4t.contentmodel.impl;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.Component;
@@ -34,6 +35,7 @@ import java.util.Map;
  *
  * @author bjornl
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComponentPresentationImpl extends AbstractModel implements ComponentPresentation {
 
     @JsonProperty("Component")

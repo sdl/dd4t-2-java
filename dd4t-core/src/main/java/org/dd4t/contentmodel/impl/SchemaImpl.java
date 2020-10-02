@@ -16,9 +16,11 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.Schema;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SchemaImpl extends BaseRepositoryLocalItem implements Schema {
 
     @JsonProperty("RootElementName")
@@ -30,5 +32,12 @@ public class SchemaImpl extends BaseRepositoryLocalItem implements Schema {
 
     public void setRootElement(String rootElement) {
         this.rootElement = rootElement;
+    }
+
+    @Override
+    public String toString() {
+        return "SchemaImpl{" +
+                "rootElement='" + rootElement + '\'' +
+                '}';
     }
 }

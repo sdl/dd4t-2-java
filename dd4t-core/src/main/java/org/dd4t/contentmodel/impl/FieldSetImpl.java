@@ -19,6 +19,7 @@ package org.dd4t.contentmodel.impl;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.dd4t.contentmodel.Field;
@@ -36,6 +37,7 @@ import java.util.Map;
  * Embedded fields basically are an array of
  * ambiguous and unknown keynames, with multiple Fields in them
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FieldSetImpl implements FieldSet {
 
     private static final Logger LOG = LoggerFactory.getLogger(FieldSetImpl.class);

@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.Category;
@@ -36,6 +37,7 @@ import java.util.Map;
  *
  * @author bjornl
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BaseRepositoryLocalItem extends BaseItem implements RepositoryLocalItem {
 
     @JsonProperty("RevisionDate")
@@ -180,4 +182,19 @@ public abstract class BaseRepositoryLocalItem extends BaseItem implements Reposi
 	public void setSchema(Schema schema) {
 	    this.schema = schema;
 	}
+
+    @Override
+    public String toString() {
+        return "BaseRepositoryLocalItem{" +
+                "revisionDateAsString='" + revisionDateAsString + '\'' +
+                ", publication=" + publication +
+                ", owningPublication=" + owningPublication +
+                ", organizationalItem=" + organizationalItem +
+                ", lastPublishedDateAsString='" + lastPublishedDateAsString + '\'' +
+                ", version=" + version +
+                ", metadata=" + metadata +
+                ", categories=" + categories +
+                ", schema=" + schema +
+                '}';
+    }
 }

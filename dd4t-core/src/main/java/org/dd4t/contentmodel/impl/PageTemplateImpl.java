@@ -16,10 +16,12 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.HasMetadata;
 import org.dd4t.contentmodel.PageTemplate;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PageTemplateImpl extends BaseRepositoryLocalItem implements PageTemplate, HasMetadata {
 
     @JsonProperty("FileExtension")
@@ -39,5 +41,12 @@ public class PageTemplateImpl extends BaseRepositoryLocalItem implements PageTem
     @Override
     public void setFileExtension(String fileExtension) {
         this.fileExtension = fileExtension;
+    }
+
+    @Override
+    public String toString() {
+        return "PageTemplateImpl{" +
+                "fileExtension='" + fileExtension + '\'' +
+                '}';
     }
 }

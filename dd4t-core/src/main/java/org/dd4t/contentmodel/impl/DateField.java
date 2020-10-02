@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldType;
 import org.dd4t.core.util.DateUtils;
@@ -23,6 +24,7 @@ import org.dd4t.core.util.DateUtils;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class DateField extends BaseField implements Field {
 
     public DateField() {
@@ -32,7 +34,7 @@ public class DateField extends BaseField implements Field {
     @Override
     public List<Object> getValues() {
         List<String> dateValues = getDateTimeValues();
-        List<Object> l = new LinkedList<Object>();
+        List<Object> l = new LinkedList<>();
 
         for (String d : dateValues) {
             l.add(DateUtils.convertStringToDate(d));

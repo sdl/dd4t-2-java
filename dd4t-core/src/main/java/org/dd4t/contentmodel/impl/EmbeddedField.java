@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.dd4t.contentmodel.Field;
@@ -26,6 +27,7 @@ import org.dd4t.contentmodel.Schema;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class EmbeddedField extends BaseField implements Field {
 
     @JsonProperty("EmbeddedSchema")
@@ -39,11 +41,7 @@ public class EmbeddedField extends BaseField implements Field {
     @Override
     public List<Object> getValues() {
         List<Object> list = new LinkedList<>();
-
-        for (FieldSet fs : getEmbeddedValues()) {
-            list.add(fs);
-        }
-
+        list.addAll(getEmbeddedValues());
         return list;
     }
 

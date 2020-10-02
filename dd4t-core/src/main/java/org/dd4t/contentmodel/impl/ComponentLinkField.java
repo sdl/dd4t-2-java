@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.Component;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldType;
@@ -23,6 +24,7 @@ import org.dd4t.contentmodel.FieldType;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class ComponentLinkField extends BaseField implements Field {
 
     public ComponentLinkField() {
@@ -32,12 +34,8 @@ public class ComponentLinkField extends BaseField implements Field {
     @Override
     public List<Object> getValues() {
         List<Component> compValues = getLinkedComponentValues();
-        List<Object> l = new LinkedList<Object>();
-
-        for (Component c : compValues) {
-            l.add(c);
-        }
-
+        List<Object> l = new LinkedList<>();
+        l.addAll(compValues);
         return l;
     }
 }

@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.BinaryData;
 import org.dd4t.contentmodel.Component;
@@ -24,6 +25,7 @@ import org.dd4t.contentmodel.Multimedia;
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class MultimediaImpl extends BaseField implements Multimedia {
 
     private BinaryData binaryData;
@@ -145,12 +147,8 @@ public class MultimediaImpl extends BaseField implements Multimedia {
     @Override
     public List<Object> getValues() {
         List<Component> compValues = getLinkedComponentValues();
-        List<Object> l = new LinkedList<Object>();
-
-        for (Component c : compValues) {
-            l.add(c);
-        }
-
+        List<Object> l = new LinkedList<>();
+        l.addAll(compValues);
         return l;
     }
 }

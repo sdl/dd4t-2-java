@@ -16,12 +16,14 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.Field;
 import org.dd4t.contentmodel.FieldType;
 
 import java.util.LinkedList;
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NumericField extends BaseField implements Field {
 
     public NumericField() {
@@ -30,13 +32,8 @@ public class NumericField extends BaseField implements Field {
 
     @Override
     public List<Object> getValues() {
-        List<Double> dblValues = getNumericValues();
-
-        List<Object> l = new LinkedList<Object>();
-        for (Double d : dblValues) {
-            l.add(d);
-        }
-
+        List<Object> l = new LinkedList<>();
+        l.addAll(getNumericValues());
         return l;
     }
 }

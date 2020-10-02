@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.BinaryData;
 
 import java.io.ByteArrayInputStream;
@@ -24,6 +25,7 @@ import java.io.InputStream;
 /**
  * Created by rai on 02/06/14.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class BinaryDataImpl implements BinaryData {
 
     private byte[] bytes;

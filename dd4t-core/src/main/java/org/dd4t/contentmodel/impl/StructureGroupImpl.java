@@ -16,9 +16,11 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.StructureGroup;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class StructureGroupImpl extends BaseItem implements StructureGroup {
 
     @JsonProperty("PublicationId")

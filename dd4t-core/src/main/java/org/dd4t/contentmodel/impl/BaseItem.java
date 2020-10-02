@@ -16,6 +16,7 @@
 
 package org.dd4t.contentmodel.impl;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.dd4t.contentmodel.Item;
 
@@ -29,6 +30,7 @@ import java.util.Map;
  *
  * @author Quirijn Slings, Raimond Kempees
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class BaseItem extends AbstractModel implements Item {
 
     @JsonProperty("Id")
