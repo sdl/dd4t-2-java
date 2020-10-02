@@ -63,31 +63,33 @@ public class RichTextResolver extends BaseProcessor implements Processor {
 			try {
 				resolvePage((Page)item);
 			} catch (TransformerException e) {
-				LOG.error(e.getMessage(), e);
-				throw new ProcessorException(e);
+				String message = "Could not resolve page " + item;
+				LOG.error(message, e);
+				throw new ProcessorException(message, e);
 			}
 		} else if (item instanceof ComponentPresentation) {
 			try {
 				resolveComponent(((ComponentPresentation) item).getComponent());
 			} catch (TransformerException e) {
-				LOG.error(e.getMessage(), e);
-				throw new ProcessorException(e);
+				String message = "Could not resolve component presentation " + item;
+				LOG.error(message, e);
+				throw new ProcessorException(message, e);
 			}
 		} else if (item instanceof Component) {
 			try {
 				resolveComponent((Component) item);
 			} catch (TransformerException e) {
-				LOG.error(e.getMessage(), e);
-				throw new ProcessorException(e);
+				String message = "Could not resolve component " + item;
+				LOG.error(message, e);
+				throw new ProcessorException(message, e);
 			}
 		} else {
 			LOG.debug("RichTextResolverFilter. Item is not a GenericPage or GenericComponent so no component to resolve");
 		}
 		LOG.debug("RichTextResolverFilter finished");
-
 	}
 
-	protected void resolvePage (Page page) throws TransformerException {
+	protected void resolvePage(Page page) throws TransformerException {
 		List<ComponentPresentation> cpList = page.getComponentPresentations();
 		if (cpList != null) {
 			for (ComponentPresentation cp : cpList) {
@@ -125,7 +127,7 @@ public class RichTextResolver extends BaseProcessor implements Processor {
 
 	protected void resolveXhtmlField (XhtmlField xhtmlField) throws TransformerException {
 		List<Object> xhtmlValues = xhtmlField.getValues();
-		List<String> newValues = new ArrayList<String>();
+		List<String> newValues = new ArrayList<>();
 
 		Pattern p = Pattern.compile("</?ddtmproot>");
 		for (Object xhtmlValue : xhtmlValues) {

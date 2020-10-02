@@ -78,14 +78,14 @@ public class DefaultLinkResolver extends BaseProcessor implements LinkResolverPr
             try {
                 resolvePage((Page) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve page " + item, e);
                 throw new ProcessorException(e);
             }
         } else if (item instanceof Component) {
             try {
                 resolveComponent((Component) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve component " + item, e);
                 throw new ProcessorException(e);
             }
         } else {
@@ -119,8 +119,8 @@ public class DefaultLinkResolver extends BaseProcessor implements LinkResolverPr
                 resolveMap(component.getMetadata());
                 linkResolver.resolve(component);
             }
-        } catch (ItemNotFoundException | SerializationException e) {
-            throw new TransformerException(e);
+        } catch (Exception e) {
+            throw new TransformerException("Could not resolve component " + component, e);
         }
     }
 
@@ -172,22 +172,21 @@ public class DefaultLinkResolver extends BaseProcessor implements LinkResolverPr
 
                     Matcher m = regExpPattern.matcher((String) xhtmlValue);
 
-	                // TODO: StringBuffers are expensive! Replace by StringBuilder mechanism
-
                     StringBuffer sb = new StringBuffer();
                     String resolvedLink = null;
                     while (m.find()) {
                         resolvedLink = linkResolver.resolve(m.group(1));
                         // if not possible to resolve the link do nothing
                         if (resolvedLink != null) {
+                            //@ToDo consider to replace with Matcher.quoteReplacement(resolvedLink)
                             m.appendReplacement(sb, "href=\"" + resolvedLink + "\"");
                         }
                     }
                     m.appendTail(sb);
                     newValues.add(sb.toString());
                 }
-            } catch (ItemNotFoundException | SerializationException e) {
-                throw new TransformerException(e);
+            } catch (Exception e) {
+                throw new TransformerException("Could not resolve field "+ xhtmlField, e);
             }
         }
 
