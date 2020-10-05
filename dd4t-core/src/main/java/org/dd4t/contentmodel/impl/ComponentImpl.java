@@ -138,4 +138,15 @@ public class ComponentImpl extends BaseComponent implements GenericComponent, Ha
     public void setResolvedUrl(final String resolvedUrl) {
         this.resolvedUrl = resolvedUrl;
     }
+
+    @Override
+    public String toString() {
+        return "ComponentImpl{" +
+                "componentType=" + componentType +
+                ", content=" + content +
+                ", multimedia=" + multimedia +
+                ", eclId='" + eclId + '\'' +
+                ", resolvedUrl='" + resolvedUrl + '\'' +
+                '}';
+    }
 }

@@ -60,4 +60,13 @@ public class BinaryImpl extends BaseRepositoryLocalItem implements Binary, Seria
     public String getUrlPath() {
         return this.urlPath;
     }
+
+    @Override
+    public String toString() {
+        return "BinaryImpl{" +
+                "binaryData=" + binaryData +
+                ", mimeType='" + mimeType + '\'' +
+                ", urlPath='" + urlPath + '\'' +
+                '}';
+    }
 }

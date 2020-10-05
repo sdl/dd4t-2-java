@@ -200,4 +200,19 @@ public abstract class BaseRepositoryLocalItem extends BaseItem implements Reposi
     public void setSchema(Schema schema) {
         this.schema = schema;
     }
+
+    @Override
+    public String toString() {
+        return "BaseRepositoryLocalItem{" +
+                "revisionDateAsString='" + revisionDateAsString + '\'' +
+                ", publication=" + publication +
+                ", owningPublication=" + owningPublication +
+                ", organizationalItem=" + organizationalItem +
+                ", lastPublishedDateAsString='" + lastPublishedDateAsString + '\'' +
+                ", version=" + version +
+                ", metadata=" + metadata +
+                ", categories=" + categories +
+                ", schema=" + schema +
+                '}';
+    }
 }

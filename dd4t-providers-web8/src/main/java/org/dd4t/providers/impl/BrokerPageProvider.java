@@ -244,42 +244,37 @@ public class BrokerPageProvider extends BaseBrokerProvider implements PageProvid
         CacheElement<Integer> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
         Integer result = 0;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
 
-                    TCMURI tcmuri = null;
-                    try {
-                        final PageMeta pageMeta = getPageMetaByURL(url, publicationId);
-                        if (pageMeta != null) {
-                            result = 1;
-                            tcmuri = new TCMURI(pageMeta.getPublicationId(), pageMeta.getId(), pageMeta.getType());
-                        }
-                    } catch (ItemNotFoundException e) {
-                        LOG.trace(String.format("Page with url:%s does not seem to exist.", url), e);
+                TCMURI tcmuri = null;
+                try {
+                    final PageMeta pageMeta = getPageMetaByURL(url, publicationId);
+                    if (pageMeta != null) {
+                        result = 1;
+                        tcmuri = new TCMURI(pageMeta.getPublicationId(), pageMeta.getId(), pageMeta.getType());
                     }
-
-                    if (result == 1) {
-                        cacheElement.setPayload(result);
-                        cacheProvider.storeInItemCache(key, cacheElement, tcmuri.getPublicationId(), tcmuri.getItemId
-                                ());
-                        cacheElement.setExpired(false);
-                    } else {
-                        result = 0;
-                        cacheElement.setPayload(result);
-                        cacheProvider.storeInItemCache(key, cacheElement);
-                        cacheElement.setExpired(false);
-                    }
-                    LOG.debug("Stored Page exist check with key: {} in cache", key);
-                } else {
-                    LOG.debug("Fetched a Page exist check with key: {} from cache", key);
-                    result = cacheElement.getPayload();
+                } catch (ItemNotFoundException e) {
+                    LOG.trace(String.format("Page with url:%s does not seem to exist.", url), e);
                 }
+
+                if (result == 1) {
+                    cacheElement.setPayload(result);
+                    cacheProvider.storeInItemCache(key, cacheElement, tcmuri.getPublicationId(), tcmuri.getItemId
+                            ());
+                    cacheElement.setExpired(false);
+                } else {
+                    result = 0;
+                    cacheElement.setPayload(result);
+                    cacheProvider.storeInItemCache(key, cacheElement);
+                    cacheElement.setExpired(false);
+                }
+                LOG.debug("Stored Page exist check with key: {} in cache", key);
+            } else {
+                LOG.debug("Fetched a Page exist check with key: {} from cache", key);
+                result = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Fetched Page exist check with key: {} from cache", key);
-            result = cacheElement.getPayload();
         }
 
         return result != null && (result == 1);
@@ -292,7 +287,7 @@ public class BrokerPageProvider extends BaseBrokerProvider implements PageProvid
         if (pageMeta != null) {
             return new TCMURI(publicationId, pageMeta.getId(), pageMeta.getType(), pageMeta.getMajorVersion());
         }
-        throw new ItemNotFoundException("Page Id for URL not found.");
+        throw new ItemNotFoundException("Page Id for URL " + url + " not found.");
     }
 
     @Override

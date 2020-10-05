@@ -137,15 +137,14 @@ public class DefaultLinkResolver implements LinkResolver {
     }
 
     private static boolean validInCache(final CacheElement<String> cacheElement) {
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
-                    cacheElement.setExpired(false);
-                    return false;
-                }
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
+                cacheElement.setExpired(false);
+                return false;
             }
         }
+
         return true;
     }
 

@@ -48,4 +48,11 @@ public class PageTemplateImpl extends BaseRepositoryLocalItem implements PageTem
     public void setFileExtension(String fileExtension) {
         this.fileExtension = fileExtension;
     }
+
+    @Override
+    public String toString() {
+        return "PageTemplateImpl{" +
+                "fileExtension='" + fileExtension + '\'' +
+                '}';
+    }
 }

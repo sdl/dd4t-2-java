@@ -139,4 +139,15 @@ public class PageImpl extends BasePage implements GenericPage, HasMetadata, Seri
     public void setStructureGroup(StructureGroup structureGroup) {
         this.structureGroup = structureGroup;
     }
+
+    @Override
+    public String toString() {
+        return "PageImpl{" +
+                "fileName='" + fileName + '\'' +
+                ", pageTemplate=" + pageTemplate +
+                ", componentPresentations=" + componentPresentations +
+                ", structureGroup=" + structureGroup +
+                ", url='" + url + '\'' +
+                '}';
+    }
 }

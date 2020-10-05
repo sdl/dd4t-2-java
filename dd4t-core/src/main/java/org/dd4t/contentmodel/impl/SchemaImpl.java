@@ -40,4 +40,11 @@ public class SchemaImpl extends BaseRepositoryLocalItem implements Schema, Seria
     public void setRootElement(String rootElement) {
         this.rootElement = rootElement;
     }
+
+    @Override
+    public String toString() {
+        return "SchemaImpl{" +
+                "rootElement='" + rootElement + '\'' +
+                '}';
+    }
 }

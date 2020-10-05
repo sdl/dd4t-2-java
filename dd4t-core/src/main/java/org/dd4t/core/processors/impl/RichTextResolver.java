@@ -58,29 +58,29 @@ public class RichTextResolver extends BaseProcessor implements Processor {
             try {
                 resolvePage((Page) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve page " + item, e);
                 throw new ProcessorException(e);
             }
         } else if (item instanceof ComponentPresentation) {
             try {
                 resolveComponent(((ComponentPresentation) item).getComponent());
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve component presentation ", e);
                 throw new ProcessorException(e);
             }
         } else if (item instanceof Component) {
             try {
                 resolveComponent((Component) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve component " + item, e);
                 throw new ProcessorException(e);
             }
         } else {
-            LOG.debug("RichTextResolverFilter. Item is not a GenericPage or GenericComponent so no component to " +
-                    "resolve");
+            LOG.debug("RichTextResolverFilter. Item " +
+                    item.getClass().getCanonicalName()+
+                    " is not a GenericPage or GenericComponent so no component to resolve");
         }
         LOG.debug("RichTextResolverFilter finished");
-
     }
 
     protected void resolvePage(Page page) throws TransformerException {
@@ -122,7 +122,7 @@ public class RichTextResolver extends BaseProcessor implements Processor {
     protected void resolveXhtmlField(XhtmlField xhtmlField) throws TransformerException {
         try {
             RichTextUtils.resolveXhtmlField(xhtmlField, false, null, null);
-        } catch (ItemNotFoundException | SerializationException e) {
+        } catch (Exception e) {
             throw new TransformerException(e);
         }
     }

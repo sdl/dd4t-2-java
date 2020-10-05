@@ -49,4 +49,11 @@ public class ComponentTemplateImpl extends BaseRepositoryLocalItem implements Co
     public void setOutputFormat(String outputFormat) {
         this.outputFormat = outputFormat;
     }
+
+    @Override
+    public String toString() {
+        return "ComponentTemplateImpl{" +
+                "outputFormat='" + outputFormat + '\'' +
+                '}';
+    }
 }

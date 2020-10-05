@@ -69,26 +69,27 @@ public class LinkingProcessor extends BaseProcessor implements LinkResolverProce
             try {
                 resolvePage((Page) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve page " + item, e);
                 throw new ProcessorException(e);
             }
         } else if (item instanceof ComponentPresentation) {
             try {
                 resolveComponent(((ComponentPresentation) item).getComponent());
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve component presentation " + item, e);
                 throw new ProcessorException(e);
             }
         } else if (item instanceof Component) {
             try {
                 resolveComponent((Component) item);
             } catch (TransformerException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not resolve component ", e);
                 throw new ProcessorException(e);
             }
         } else {
-            LOG.debug("DefaultLinkResolverFilter. Item is not a GenericPage or GenericComponent so no component to "
-                    + "resolve");
+            LOG.debug("DefaultLinkResolverFilter. Item " +
+                    item.getClass().getCanonicalName() +
+                    " is not a GenericPage or GenericComponent so no component to resolve");
         }
     }
 
@@ -118,7 +119,7 @@ public class LinkingProcessor extends BaseProcessor implements LinkResolverProce
                 resolveMap(component.getMetadata());
                 linkResolver.resolve(component);
             }
-        } catch (ItemNotFoundException | SerializationException e) {
+        } catch (Exception e) {
             throw new TransformerException(e);
         }
     }
@@ -157,7 +158,7 @@ public class LinkingProcessor extends BaseProcessor implements LinkResolverProce
     protected void resolveXhtmlField(XhtmlField xhtmlField) throws TransformerException {
         try {
             RichTextUtils.resolveXhtmlField(xhtmlField, true, this.linkResolver, this.getContextPath());
-        } catch (ItemNotFoundException | SerializationException e) {
+        } catch (Exception e) {
             throw new TransformerException(e);
         }
     }

@@ -68,31 +68,26 @@ public class BrokerPublicationProvider extends AbstractPublicationProvider imple
         final CacheElement<Integer> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
         Integer result = Constants.UNKNOWN_PUBLICATION_ID;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
 
-                    final PageMeta pageMeta = loadPageMetaByConcreteFactory(url);
-                    if (pageMeta != null) {
-                        result = pageMeta.getPublicationId();
-                        cacheElement.setPayload(result);
-                        cacheProvider.storeInItemCache(key, cacheElement);
-                        cacheElement.setExpired(false);
-                        LOG.debug("Publication Id for URL: {}, is {}", url, result);
-                    } else {
-                        LOG.warn("Could not resolve publication Id for URL: {}", url);
-                    }
-
-                    LOG.debug("Stored Publication Id with key: {} in cache", key);
+                final PageMeta pageMeta = loadPageMetaByConcreteFactory(url);
+                if (pageMeta != null) {
+                    result = pageMeta.getPublicationId();
+                    cacheElement.setPayload(result);
+                    cacheProvider.storeInItemCache(key, cacheElement);
+                    cacheElement.setExpired(false);
+                    LOG.debug("Publication Id for URL: {}, is {}", url, result);
                 } else {
-                    LOG.debug("Fetched a Publication Id with key: {} from cache", key);
-                    result = cacheElement.getPayload();
+                    LOG.warn("Could not resolve publication Id for URL: {}", url);
                 }
+
+                LOG.debug("Stored Publication Id with key: {} in cache", key);
+            } else {
+                LOG.debug("Fetched a Publication Id with key: {} from cache", key);
+                result = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Fetched Publication Id with key: {} from cache", key);
-            result = cacheElement.getPayload();
         }
 
         return result == null ? Constants.UNKNOWN_PUBLICATION_ID : result;
@@ -105,31 +100,26 @@ public class BrokerPublicationProvider extends AbstractPublicationProvider imple
         final CacheElement<Integer> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
         Integer result = Constants.UNKNOWN_PUBLICATION_ID;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
 
-                    final BinaryMeta binaryMeta = loadBinaryMetaByConcreteFactory(fullUrl);
-                    if (binaryMeta != null) {
-                        result = binaryMeta.getPublicationId();
-                        LOG.debug("Publication Id for URL: {}, is {}", fullUrl, result);
-                    } else {
-                        LOG.warn("Could not resolve publication Id for Binary URL: {}", fullUrl);
-                    }
-
-                    cacheElement.setPayload(result);
-                    cacheProvider.storeInItemCache(key, cacheElement);
-                    cacheElement.setExpired(false);
-                    LOG.debug("Stored Publication Id with key: {} in cache", key);
+                final BinaryMeta binaryMeta = loadBinaryMetaByConcreteFactory(fullUrl);
+                if (binaryMeta != null) {
+                    result = binaryMeta.getPublicationId();
+                    LOG.debug("Publication Id for URL: {}, is {}", fullUrl, result);
                 } else {
-                    LOG.debug("Fetched a Publication Id with key: {} from cache", key);
-                    result = cacheElement.getPayload();
+                    LOG.warn("Could not resolve publication Id for Binary URL: {}", fullUrl);
                 }
+
+                cacheElement.setPayload(result);
+                cacheProvider.storeInItemCache(key, cacheElement);
+                cacheElement.setExpired(false);
+                LOG.debug("Stored Publication Id with key: {} in cache", key);
+            } else {
+                LOG.debug("Fetched a Publication Id with key: {} from cache", key);
+                result = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Fetched Publication Id for Binary with key: {} from cache", key);
-            result = cacheElement.getPayload();
         }
 
         return result == null ? Constants.UNKNOWN_PUBLICATION_ID : result;
@@ -140,7 +130,7 @@ public class BrokerPublicationProvider extends AbstractPublicationProvider imple
         try {
             return PUBLICATION_META_FACTORY.getMeta(publicationId);
         } catch (StorageException e) {
-            LOG.error(e.getLocalizedMessage(), e);
+            LOG.error("Cannot get meta for publication " + publicationId, e);
         }
         return null;
     }

@@ -85,32 +85,26 @@ public abstract class AbstractPublicationProvider extends BaseBrokerProvider imp
 
         PublicationMeta publicationMeta;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
 
-                    publicationMeta = loadPublicationMetaByConcreteFactory(publicationId);
-                    if (publicationMeta != null) {
-                        cacheElement.setPayload(publicationMeta);
-                        cacheProvider.storeInItemCache(key, cacheElement);
-                        cacheElement.setExpired(false);
-                        LOG.debug("Stored Publication Meta with key: {} in cache", key);
-                    } else {
-                        LOG.warn("No Publication Meta found for publication Id: {}", publicationId);
-                        // TODO: cache nulls?
-                    }
-
+                publicationMeta = loadPublicationMetaByConcreteFactory(publicationId);
+                if (publicationMeta != null) {
+                    cacheElement.setPayload(publicationMeta);
+                    cacheProvider.storeInItemCache(key, cacheElement);
+                    cacheElement.setExpired(false);
+                    LOG.debug("Stored Publication Meta with key: {} in cache", key);
                 } else {
-                    LOG.debug("Fetched a Publication Meta with key: {} from cache", key);
-                    publicationMeta = cacheElement.getPayload();
+                    LOG.warn("No Publication Meta found for publication Id: {}", publicationId);
+                    // TODO: cache nulls?
                 }
-            }
-        } else {
-            LOG.debug("Fetched a Publication Meta with key: {} from cache", key);
-            publicationMeta = cacheElement.getPayload();
-        }
 
+            } else {
+                LOG.debug("Fetched a Publication Meta with key: {} from cache", key);
+                publicationMeta = cacheElement.getPayload();
+            }
+        }
         if (publicationMeta == null) {
             LOG.error("Could not find Publication Meta for publication id: {}", publicationId);
             return null;

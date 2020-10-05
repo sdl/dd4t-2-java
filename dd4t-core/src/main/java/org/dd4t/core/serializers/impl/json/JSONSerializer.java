@@ -52,7 +52,7 @@ public class JSONSerializer implements Serializer {
         try {
             return MAPPER.readValue(content, aClass);
         } catch (IOException e) {
-            LOG.error("Error deserializing.", e);
+            LOG.error("Error deserializing to " + aClass.getCanonicalName(), e);
             throw new SerializationException(e);
         }
     }
@@ -60,7 +60,7 @@ public class JSONSerializer implements Serializer {
     @Override
     public String serialize(final Object item) throws SerializationException {
         try {
-            LOG.debug("Serializing a {}", item.getClass());
+            LOG.debug("Serializing a {}", item.getClass().getCanonicalName());
             return MAPPER.writeValueAsString(item);
         } catch (JsonProcessingException e) {
             LOG.error("Error serializing.", e);

@@ -56,38 +56,31 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
         CacheElement<Binary> cacheElement = cacheProvider.loadPayloadFromLocalCache(tcmUri);
         Binary binary;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
-                    try {
-                        binary = binaryProvider.getBinaryByURI(tcmUri);
-                        cacheElement.setPayload(binary);
-                        TCMURI binaryURI = new TCMURI(tcmUri);
-                        cacheProvider.storeInItemCache(tcmUri, cacheElement, binaryURI.getPublicationId(), binaryURI
-                                .getItemId());
-                        cacheElement.setExpired(false);
-                        LOG.debug("Added binary with uri: {} to cache", tcmUri);
-                    } catch (ParseException e) {
-                        cacheElement.setPayload(null);
-                        cacheProvider.storeInItemCache(tcmUri, cacheElement);
-                        cacheElement.setExpired(true);
-                        throw new ItemNotFoundException(e);
-                    }
-                } else {
-                    LOG.debug("Return a binary with uri: {} from cache", tcmUri);
-                    binary = cacheElement.getPayload();
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
+                try {
+                    binary = binaryProvider.getBinaryByURI(tcmUri);
+                    cacheElement.setPayload(binary);
+                    TCMURI binaryURI = new TCMURI(tcmUri);
+                    cacheProvider.storeInItemCache(tcmUri, cacheElement, binaryURI.getPublicationId(), binaryURI
+                            .getItemId());
+                    cacheElement.setExpired(false);
+                    LOG.debug("Added binary with uri: {} to cache", tcmUri);
+                } catch (ParseException e) {
+                    cacheElement.setPayload(null);
+                    cacheProvider.storeInItemCache(tcmUri, cacheElement);
+                    cacheElement.setExpired(true);
+                    throw new ItemNotFoundException("Cannot cache item with tcm uri " + tcmUri, e);
+                }
+            } else {
+                LOG.debug("Return a binary with uri: {} from cache", tcmUri);
+                binary = cacheElement.getPayload();
+                if (binary == null) {
+                    throw new ItemNotFoundException("Found nullreference for binary in cache.");
                 }
             }
-        } else {
-            LOG.debug("Return binary with uri: {} from cache", tcmUri);
-            binary = cacheElement.getPayload();
-
-            if (binary == null) {
-                throw new ItemNotFoundException("Found nullreference for binary in cache.");
-            }
         }
-
         return binary;
     }
 
@@ -109,30 +102,24 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
         CacheElement<Binary> cacheElement = cacheProvider.loadPayloadFromLocalCache(key);
         Binary binary;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
-                    try {
-                        binary = binaryProvider.getBinaryByURL(url, publicationId);
-                        cacheElement.setPayload(binary);
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
+                try {
+                    binary = binaryProvider.getBinaryByURL(url, publicationId);
+                    cacheElement.setPayload(binary);
 
-                        TCMURI tcmUri = new TCMURI(binary.getId());
-                        cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId
-                                ());
-                        cacheElement.setExpired(false);
-                        LOG.debug("Added binary with url: {} to cache", url);
-                    } catch (ParseException e) {
-                        throw new ItemNotFoundException(e);
-                    }
-                } else {
-                    LOG.debug("Return a binary with url: {} from cache", url);
-                    binary = cacheElement.getPayload();
+                    TCMURI tcmUri = new TCMURI(binary.getId());
+                    cacheProvider.storeInItemCache(key, cacheElement, tcmUri.getPublicationId(), tcmUri.getItemId());
+                    cacheElement.setExpired(false);
+                    LOG.debug("Added binary with url: {} to cache", url);
+                } catch (ParseException e) {
+                    throw new ItemNotFoundException("Cannot get binary with uri " + url, e);
                 }
+            } else {
+                LOG.debug("Return a binary with url: {} from cache", url);
+                binary = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Return binary with url: {} from cache", url);
-            binary = cacheElement.getPayload();
         }
 
         return binary;
