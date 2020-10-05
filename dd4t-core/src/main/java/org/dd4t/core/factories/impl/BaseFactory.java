@@ -58,10 +58,7 @@ public abstract class BaseFactory {
      */
     public void setProcessors(List<Processor> processors) {
         this.processors = new ArrayList<>();
-
-        for (Processor processor : processors) {
-            this.processors.add(processor);
-        }
+        this.processors.addAll(processors);
     }
 
     /**

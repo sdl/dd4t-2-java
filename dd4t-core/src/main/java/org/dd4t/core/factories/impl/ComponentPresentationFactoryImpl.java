@@ -96,48 +96,42 @@ public class ComponentPresentationFactoryImpl extends BaseFactory implements Com
 
         ComponentPresentation componentPresentation;
 
-        if (cacheElement.isExpired()) {
-            //noinspection SynchronizationOnLocalVariableOrMethodParameter
-            synchronized (cacheElement) {
-                if (cacheElement.isExpired()) {
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
+        synchronized (cacheElement) {
+            if (cacheElement.isExpired()) {
 
-                    ComponentPresentationResultItem<String> result = componentPresentationProvider
-                            .getDynamicComponentPresentationItem(componentId, templateId, publicationId);
-                    String rawComponentPresentation = result.getSourceContent();
+                ComponentPresentationResultItem<String> result = componentPresentationProvider
+                        .getDynamicComponentPresentationItem(componentId, templateId, publicationId);
+                String rawComponentPresentation = result.getSourceContent();
 
-                    if (rawComponentPresentation == null) {
-                        cacheElement.setPayload(null);
-                        cacheElement.setNull(true);
-                        cacheProvider.storeInItemCache(key, cacheElement);
-                        throw new ItemNotFoundException(String.format("Could not find DCP with componentURI: %s and " +
-                                "templateURI: %s", parsedComponentUri, templateURI));
-                    }
-
-                    // Building STMs here.
-                    componentPresentation = selectDataBinder(rawComponentPresentation).buildComponentPresentation
-                            (rawComponentPresentation, ComponentPresentation.class);
-
-                    // necessary for backwards compatibility to dd4t-1 (no way to get template URI otherwise)
-                    componentPresentation.getComponentTemplate().setId(new TCMURI(result.getPublicationId(), result
-                            .getTemplateId(), 32).toString());
-
-                    LOG.debug("Running pre caching processors");
-                    this.executeProcessors(componentPresentation.getComponent(), RunPhase.BEFORE_CACHING, context);
-                    cacheElement.setPayload(componentPresentation);
-                    cacheProvider.storeInItemCache(key, cacheElement, publicationId, componentId);
-                    cacheElement.setExpired(false);
-                    LOG.debug("Added component with uri: {} and template: {} to cache", parsedComponentUri, templateURI);
-
-                } else {
-                    LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", parsedComponentUri,
-                            templateURI);
-                    componentPresentation = cacheElement.getPayload();
+                if (rawComponentPresentation == null) {
+                    cacheElement.setPayload(null);
+                    cacheElement.setNull(true);
+                    cacheProvider.storeInItemCache(key, cacheElement);
+                    throw new ItemNotFoundException(String.format("Could not find DCP with componentURI: %s and " +
+                            "templateURI: %s", parsedComponentUri, templateURI));
                 }
+
+                // Building STMs here.
+                componentPresentation = selectDataBinder(rawComponentPresentation).buildComponentPresentation
+                        (rawComponentPresentation, ComponentPresentation.class);
+
+                // necessary for backwards compatibility to dd4t-1 (no way to get template URI otherwise)
+                componentPresentation.getComponentTemplate().setId(new TCMURI(result.getPublicationId(), result
+                        .getTemplateId(), 32).toString());
+
+                LOG.debug("Running pre caching processors");
+                this.executeProcessors(componentPresentation.getComponent(), RunPhase.BEFORE_CACHING, context);
+                cacheElement.setPayload(componentPresentation);
+                cacheProvider.storeInItemCache(key, cacheElement, publicationId, componentId);
+                cacheElement.setExpired(false);
+                LOG.debug("Added component with uri: {} and template: {} to cache", parsedComponentUri, templateURI);
+
+            } else {
+                LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", parsedComponentUri,
+                        templateURI);
+                componentPresentation = cacheElement.getPayload();
             }
-        } else {
-            LOG.debug("Return component for componentURI: {} and templateURI: {} from cache", parsedComponentUri,
-                    templateURI);
-            componentPresentation = cacheElement.getPayload();
         }
 
         if (componentPresentation != null) {

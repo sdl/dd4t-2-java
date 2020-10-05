@@ -39,7 +39,6 @@ public class BinaryFactoryImpl extends BaseFactory implements BinaryFactory {
     private BinaryProvider binaryProvider;
 
     public BinaryFactoryImpl() {
-        LOG.debug("Create new instance");
     }
 
     /**
