@@ -16,6 +16,7 @@
 
 package org.dd4t.databind.viewmodel.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.core.databind.TridionViewModel;
 import org.dd4t.core.util.TCMURI;
 import org.dd4t.databind.annotations.ViewModel;

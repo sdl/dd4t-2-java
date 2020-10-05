@@ -16,6 +16,7 @@
 
 package org.dd4t.databind.viewmodel.base;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.apache.commons.lang3.StringUtils;
 import org.dd4t.core.databind.BaseViewModel;
 import org.dd4t.databind.annotations.ViewModel;
@@ -33,6 +34,7 @@ import java.util.Map;
 /**
  * @author R. Kempees
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class ViewModelBase implements BaseViewModel {
     private static final Logger LOG = LoggerFactory.getLogger(ViewModelBase.class);
     private final List<String> viewModelNames;

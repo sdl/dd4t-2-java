@@ -1,11 +1,13 @@
 package org.dd4t.test.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.dd4t.contentmodel.impl.KeywordImpl;
 import org.dd4t.contentmodel.impl.MultimediaImpl;
 import org.dd4t.databind.annotations.ViewModel;
 import org.dd4t.databind.annotations.ViewModelProperty;
 
 @ViewModel (rootElementNames = {"animal"})
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Animal extends AbstractModelClass implements GenericModelInterface {
     @ViewModelProperty
     private String species;
