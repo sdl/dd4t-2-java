@@ -140,11 +140,11 @@ public class TCMURI implements Serializable {
         }
 
         public Builder(String uri) throws ParseException {
-            try {
+            try{
                 validatePatternOf(uri);
                 extractItemsFrom(uri);
             } catch (IllegalArgumentException iae) {
-                throw new ParseException("Could not parse " + uri, 0);
+                throw new ParseException(iae.getMessage(), 0);
             }
         }
 
