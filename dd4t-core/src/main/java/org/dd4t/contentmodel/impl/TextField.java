@@ -47,11 +47,7 @@ public class TextField extends BaseField implements Field, Serializable {
     public List<Object> getValues() {
         List<String> textValues = getTextValues();
         List<Object> l = new LinkedList<>();
-
-        for (String s : textValues) {
-            l.add(s);
-        }
-
+        l.addAll(textValues);
         return l;
     }
 
@@ -69,5 +65,13 @@ public class TextField extends BaseField implements Field, Serializable {
 
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return "TextField{" +
+                "categoryId='" + categoryId + '\'' +
+                ", categoryName='" + categoryName + '\'' +
+                '}';
     }
 }

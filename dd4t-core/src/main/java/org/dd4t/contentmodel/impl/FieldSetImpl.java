@@ -111,4 +111,12 @@ public class FieldSetImpl implements FieldSet, Serializable {
     public Map<String, Field> getContent() {
         return this.fieldSet;
     }
+
+    @Override
+    public String toString() {
+        return "FieldSetImpl{" +
+                "fieldSet=" + fieldSet +
+                ", schema=" + schema +
+                '}';
+    }
 }

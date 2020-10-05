@@ -144,8 +144,7 @@ public class TCMURI implements Serializable {
                 validatePatternOf(uri);
                 extractItemsFrom(uri);
             } catch (IllegalArgumentException iae) {
-                LOG.trace(iae.getLocalizedMessage(), iae);
-                throw new ParseException(iae.getMessage(), 0);
+                throw new ParseException("Could not parse " + uri, 0);
             }
         }
 

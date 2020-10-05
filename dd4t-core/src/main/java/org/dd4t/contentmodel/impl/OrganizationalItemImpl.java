@@ -39,4 +39,11 @@ public class OrganizationalItemImpl extends BaseItem implements OrganizationalIt
     public void setPublicationId(String publicationId) {
         this.publicationId = publicationId;
     }
+
+    @Override
+    public String toString() {
+        return "OrganizationalItemImpl{" +
+                "publicationId='" + publicationId + '\'' +
+                '}';
+    }
 }

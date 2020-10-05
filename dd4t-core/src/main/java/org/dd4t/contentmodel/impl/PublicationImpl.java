@@ -35,4 +35,9 @@ public class PublicationImpl extends BaseItem implements Publication, Serializab
         super();
         this.setId(id);
     }
+
+    @Override
+    public String toString() {
+        return "PublicationImpl{} extends " + super.toString();
+    }
 }

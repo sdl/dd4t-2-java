@@ -124,7 +124,7 @@ public final class SiteEditService {
                 return true;
             }
         } catch (Exception ex) {
-            LOG.error("Unable to get pubID from URI", ex);
+            LOG.error("Unable to get pubID from URI " + tcmPubId, ex);
         }
 
         return false;
@@ -146,7 +146,7 @@ public final class SiteEditService {
                         (), page.getPageTemplate().getRevisionDate(), settings.getContentmanager());
             }
         } catch (Exception ex) {
-            LOG.error("Unable to get pubID from URI", ex);
+            LOG.error("Unable to get pubID from URI " + page.getId(), ex);
         }
 
         return "";
@@ -219,7 +219,7 @@ public final class SiteEditService {
             return String.format(linkedcomponentseformat, compuri.getPublicationId(), compuri.getItemId(), dcp
                     .getComponent().getLastPublishedDate(), cturi.getItemId(), dcp.isDynamic(), true);
         } catch (ParseException e) {
-            LOG.error(e.getLocalizedMessage(), e);
+            LOG.error("Cannot generate linked component tag ", e);
         }
         return null;
 

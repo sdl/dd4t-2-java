@@ -70,4 +70,14 @@ public class ConditionImpl implements Condition, Serializable {
     public void setValue(final String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "ConditionImpl{" +
+                "name='" + name + '\'' +
+                ", negate=" + negate +
+                ", operator=" + operator +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

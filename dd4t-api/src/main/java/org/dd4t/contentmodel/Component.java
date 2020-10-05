@@ -161,12 +161,12 @@ public interface Component extends RepositoryLocalItem {
             try {
                 return ComponentType.valueOf(name.toUpperCase());
             } catch (IllegalArgumentException iae) {
-                LOG.error(iae.getLocalizedMessage(), iae);
+                LOG.error("Could not fin component with name " + name, iae);
                 try {
                     int value = Integer.parseInt(name);
                     return findByValue(value);
                 } catch (NumberFormatException nfe) {
-                    LOG.error(nfe.getLocalizedMessage(), nfe);
+                    LOG.error("Could not parse " + name + " as int", nfe);
                     return ComponentType.UNKNOWN;
                 }
             }

@@ -237,7 +237,7 @@ public class DefaultLinkResolver implements LinkResolver {
                 TCMURI tcmUri = new TCMURI(schema.getId());
                 key = String.valueOf(tcmUri.getItemId());
             } catch (ParseException e) {
-                LOG.error(e.getMessage(), e);
+                LOG.error("Could not find mapping for schema " + schema.getId(), e);
                 return null;
             }
         } else if ("title".equals(schemaKey)) {

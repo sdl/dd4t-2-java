@@ -160,11 +160,22 @@ public class MultimediaImpl extends BaseField implements Multimedia, Serializabl
     public List<Object> getValues() {
         List<Component> compValues = getLinkedComponentValues();
         List<Object> l = new LinkedList<Object>();
-
-        for (Component c : compValues) {
-            l.add(c);
-        }
-
+        l.addAll(compValues);
         return l;
+    }
+
+    @Override
+    public String toString() {
+        return "MultimediaImpl{" +
+                "binaryData=" + binaryData +
+                ", height=" + height +
+                ", width=" + width +
+                ", size=" + size +
+                ", alt='" + alt + '\'' +
+                ", url='" + url + '\'' +
+                ", mimeType='" + mimeType + '\'' +
+                ", fileExtension='" + fileExtension + '\'' +
+                ", fileName='" + fileName + '\'' +
+                '}';
     }
 }

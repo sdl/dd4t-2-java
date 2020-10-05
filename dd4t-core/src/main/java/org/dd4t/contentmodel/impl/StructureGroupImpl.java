@@ -39,4 +39,11 @@ public class StructureGroupImpl extends BaseItem implements StructureGroup, Seri
     public void setPublicationId(String publicationId) {
         this.publicationId = publicationId;
     }
+
+    @Override
+    public String toString() {
+        return "StructureGroupImpl{" +
+                "publicationId='" + publicationId + '\'' +
+                '}';
+    }
 }

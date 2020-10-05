@@ -45,11 +45,7 @@ public class KeywordField extends BaseField implements Field, Serializable {
     public List<Object> getValues() {
         List<Keyword> keywordValues = getKeywordValues();
         List<Object> l = new LinkedList<>();
-
-        for (Keyword k : keywordValues) {
-            l.add(k);
-        }
-
+        l.addAll(keywordValues);
         return l;
     }
 
@@ -67,5 +63,13 @@ public class KeywordField extends BaseField implements Field, Serializable {
 
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    @Override
+    public String toString() {
+        return "KeywordField{" +
+                "categoryName='" + categoryName + '\'' +
+                ", categoryId='" + categoryId + '\'' +
+                '}';
     }
 }

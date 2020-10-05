@@ -38,10 +38,12 @@ public class NumericField extends BaseField implements Field, Serializable {
         List<Double> dblValues = getNumericValues();
 
         List<Object> l = new LinkedList<Object>();
-        for (Double d : dblValues) {
-            l.add(d);
-        }
-
+        l.addAll(dblValues);
         return l;
+    }
+
+    @Override
+    public String toString() {
+        return "NumericField{} extends " + super.toString();
     }
 }

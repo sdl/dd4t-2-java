@@ -202,4 +202,21 @@ public class KeywordImpl extends BaseItem implements Keyword, Serializable {
     public void setMetadata(Map<String, Field> metadata) {
         this.metadata = metadata;
     }
+
+    @Override
+    public String toString() {
+        return "KeywordImpl{" +
+                "isRootKeyword=" + isRootKeyword +
+                ", isAbstractKeyword=" + isAbstractKeyword +
+                ", childKeywords=" + childKeywords +
+                ", classifiedItems=" + classifiedItems +
+                ", description='" + description + '\'' +
+                ", key='" + key + '\'' +
+                ", metadata=" + metadata +
+                ", parentKeywords=" + parentKeywords +
+                ", path='" + path + '\'' +
+                ", relatedKeywords=" + relatedKeywords +
+                ", taxonomyId='" + taxonomyId + '\'' +
+                '}';
+    }
 }

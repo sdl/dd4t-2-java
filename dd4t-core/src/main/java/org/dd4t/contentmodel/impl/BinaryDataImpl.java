@@ -22,6 +22,7 @@ import org.dd4t.contentmodel.BinaryData;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Arrays;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BinaryDataImpl implements BinaryData, Serializable {
@@ -47,5 +48,12 @@ public class BinaryDataImpl implements BinaryData, Serializable {
     @Override
     public long getDataSize() {
         return bytes == null ? 0 : bytes.length;
+    }
+
+    @Override
+    public String toString() {
+        return "BinaryDataImpl{" +
+                bytes.length + " bytes" +
+                '}';
     }
 }

@@ -57,4 +57,11 @@ public class CategoryImpl extends BaseItem implements Category, Serializable {
     public void setKeywordValues(List<Keyword> keywordValues) {
         this.keywords = keywordValues;
     }
+
+    @Override
+    public String toString() {
+        return "CategoryImpl{" +
+                "keywords=" + keywords +
+                '}';
+    }
 }

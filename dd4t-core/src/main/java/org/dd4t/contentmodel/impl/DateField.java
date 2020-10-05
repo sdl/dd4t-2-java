@@ -45,4 +45,9 @@ public class DateField extends BaseField implements Field, Serializable {
 
         return l;
     }
+
+    @Override
+    public String toString() {
+        return "DateField{} extends " + super.toString();
+    }
 }

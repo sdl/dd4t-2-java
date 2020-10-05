@@ -219,5 +219,18 @@ public class ComponentPresentationImpl implements ComponentPresentation, Seriali
         this.extensionData = extensionData;
     }
 
-
+    @Override
+    public String toString() {
+        return "ComponentPresentationImpl{" +
+                "component=" + component +
+                ", componentTemplate=" + componentTemplate +
+                ", extensionData=" + extensionData +
+                ", isDynamic=" + isDynamic +
+                ", renderedContent='" + renderedContent + '\'' +
+                ", orderOnPage=" + orderOnPage +
+                ", conditions=" + conditions +
+                ", baseViewModels=" + baseViewModels +
+                ", rawComponentContent='" + rawComponentContent + '\'' +
+                '}';
+    }
 }

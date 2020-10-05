@@ -41,7 +41,7 @@ public class RichTextWithLinksResolver extends RichTextResolver implements Proce
         try {
             RichTextUtils.resolveXhtmlField(xhtmlField, true, this.linkResolver, this.linkResolver.getContextPath());
         } catch (Exception e) {
-            throw new TransformerException(e);
+            throw new TransformerException("Could not resolve field " + xhtmlField, e);
         }
     }
 

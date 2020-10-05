@@ -31,4 +31,9 @@ public class XhtmlField extends TextField implements Field, Serializable {
     public XhtmlField() {
         setFieldType(FieldType.XHTML);
     }
+
+    @Override
+    public String toString() {
+        return "XhtmlField{} extends " + super.toString();
+    }
 }

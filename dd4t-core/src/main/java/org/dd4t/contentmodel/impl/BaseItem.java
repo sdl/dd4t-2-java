@@ -100,4 +100,14 @@ public abstract class BaseItem implements Item, Serializable {
     public void setExtensionData(Map<String, FieldSet> extensionData) {
         this.extensionData = extensionData;
     }
+
+    @Override
+    public String toString() {
+        return "BaseItem{" +
+                "id='" + id + '\'' +
+                ", title='" + title + '\'' +
+                ", customProperties=" + customProperties +
+                ", extensionData=" + extensionData +
+                '}';
+    }
 }

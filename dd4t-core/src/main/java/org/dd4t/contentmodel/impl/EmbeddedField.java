@@ -45,11 +45,7 @@ public class EmbeddedField extends BaseField implements Field, Embedded, Seriali
     @Override
     public List<Object> getValues() {
         List<Object> list = new LinkedList<>();
-
-        for (FieldSet fs : getEmbeddedValues()) {
-            list.add(fs);
-        }
-
+        list.addAll(getEmbeddedValues());
         return list;
     }
 
@@ -61,5 +57,12 @@ public class EmbeddedField extends BaseField implements Field, Embedded, Seriali
     @Override
     public void setEmbeddedSchema(final Schema embeddedSchema) {
         this.embeddedSchema = embeddedSchema;
+    }
+
+    @Override
+    public String toString() {
+        return "EmbeddedField{" +
+                "embeddedSchema=" + embeddedSchema +
+                '}';
     }
 }

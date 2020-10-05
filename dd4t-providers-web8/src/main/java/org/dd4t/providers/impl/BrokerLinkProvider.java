@@ -110,7 +110,7 @@ public class BrokerLinkProvider extends BaseBrokerProvider implements LinkProvid
                 return link.getURL();
             }
         } catch (Exception ex) {
-            LOG.error("Unable to resolve link to " + targetComponentUri + ": " + ex.getMessage(), ex);
+            LOG.error("Unable to resolve link to " + targetComponentUri, ex);
         }
         return null;
     }

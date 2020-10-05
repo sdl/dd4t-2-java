@@ -252,4 +252,18 @@ public abstract class BaseField implements Field {
         this.keywordValues = keywordValues;
     }
 
+    @Override
+    public String toString() {
+        return "BaseField{" +
+                "name='" + name + '\'' +
+                ", textValues=" + textValues +
+                ", numericValues=" + numericValues +
+                ", dateValues=" + dateValues +
+                ", componentLinkValues=" + componentLinkValues +
+                ", keywordValues=" + keywordValues +
+                ", embeddedValues=" + embeddedValues +
+                ", fieldType=" + fieldType +
+                ", xPath='" + xPath + '\'' +
+                '}';
+    }
 }
